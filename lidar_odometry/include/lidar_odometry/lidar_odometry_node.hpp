@@ -60,6 +60,7 @@ private:
   // pub & sub
   std::shared_ptr<localization_common::CloudSubscriber> cloud_sub_;
   std::shared_ptr<localization_common::OdometrySubscriber> reference_odom_sub_;
+  std::shared_ptr<localization_common::CloudPublisher> undistorted_scan_pub_;
   std::shared_ptr<localization_common::CloudPublisher> current_scan_pub_;
   std::shared_ptr<localization_common::CloudPublisher> local_map_pub_;
   std::shared_ptr<localization_common::CloudPublisher> loam_feature_pub_;
@@ -86,6 +87,7 @@ private:
   Eigen::Matrix4d T_map_odom_ = Eigen::Matrix4d::Identity();
   bool use_initial_pose_from_topic_{false};
   bool undistort_point_cloud_{false};
+  bool publish_undistorted_pointcloud_{false};
   bool inited_{false};
   // debug
   localization_common::AdvancedTicToc elapsed_time_statistics_;

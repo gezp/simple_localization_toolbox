@@ -35,12 +35,14 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   node->declare_parameter("publish_tf", publish_tf_);
   node->declare_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
   node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
+  node->declare_parameter("publish_undistorted_pointcloud", publish_undistorted_pointcloud_);
   node->declare_parameter("base_frame_id", base_frame_id_);
   node->declare_parameter("lidar_frame_id", lidar_frame_id_);
   node->get_parameter("lidar_odometry_config", lidar_odometry_config);
   node->get_parameter("publish_tf", publish_tf_);
   node->get_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
   node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
+  node->get_parameter("publish_undistorted_pointcloud", publish_undistorted_pointcloud_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
   RCLCPP_INFO(node->get_logger(), "lidar_odometry_config: [%s]", lidar_odometry_config.c_str());
@@ -70,6 +72,8 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
     reference_odom_sub_ =
       std::make_shared<localization_common::OdometrySubscriber>(node, "reference_odom", 10000);
   }
+  undistorted_scan_pub_ = std::make_shared<localization_common::CloudPublisher>(
+    node, "lidar_odometry/undistorted_pointcloud", "map", 100);
   current_scan_pub_ = std::make_shared<localization_common::CloudPublisher>(
     node, "lidar_odometry/current_scan", "map", 100);
   local_map_pub_ = std::make_shared<localization_common::CloudPublisher>(
@@ -192,6 +196,9 @@ bool LidarOdometryNode::update_odometry(OdometryMethod method, const LidarMsgDat
   // undistort point cloud
   if (undistort_point_cloud_) {
     localization_common::undistort_point_cloud(lidar_data, last_twist_);
+    if (publish_undistorted_pointcloud_) {
+      undistorted_scan_pub_->publish(lidar_data);
+    }
   }
   bool success = false;
   if (method == OdometryMethod::Simple) {

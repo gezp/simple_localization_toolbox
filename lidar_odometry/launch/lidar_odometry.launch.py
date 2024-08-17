@@ -48,6 +48,7 @@ def generate_launch_description():
             {
                 "lidar_odometry_config": lidar_odometry_config,
                 "undistort_point_cloud": False,
+                "publish_undistorted_pointcloud": False,
                 "publish_tf": True,
                 "use_initial_pose_from_topic": True,
                 "base_frame_id": "base_link",
