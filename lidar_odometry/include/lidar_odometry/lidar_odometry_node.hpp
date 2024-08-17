@@ -87,7 +87,7 @@ private:
   Eigen::Matrix4d T_map_odom_ = Eigen::Matrix4d::Identity();
   bool use_initial_pose_from_topic_{false};
   bool undistort_point_cloud_{false};
-  bool publish_undistorted_pointcloud_{false};
+  bool publish_undistorted_point_cloud_{false};
   bool inited_{false};
   // debug
   localization_common::AdvancedTicToc elapsed_time_statistics_;
