@@ -191,7 +191,7 @@ bool LidarOdometryNode::update_odometry(OdometryMethod method, const LidarMsgDat
   auto lidar_data = cloud_sub_->to_lidar_data<localization_common::PointXYZIRT>(msg_data);
   // undistort point cloud
   if (undistort_point_cloud_) {
-    undistort_point_cloud(lidar_data, last_twist_);
+    localization_common::undistort_point_cloud(lidar_data, last_twist_);
   }
   bool success = false;
   if (method == OdometryMethod::Simple) {
@@ -264,9 +264,7 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
       loam_feature_pub_->publish(*feature_scan);
     }
   }
-  last_twist_.time = odom.time;
-  last_twist_.linear_velocity = odom.linear_velocity;
-  last_twist_.angular_velocity = odom.angular_velocity;
+  last_twist_ = localization_common::get_twist_from_odom(odom);
   elapsed_time_statistics_.toc("publish_data");
 }
 

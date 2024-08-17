@@ -90,7 +90,7 @@ localization_common::OdomData SimpleOdometry::get_current_odom()
   if (history_poses_.size() >= 2) {
     auto & pose1 = history_poses_[history_poses_.size() - 2];
     auto & pose2 = history_poses_[history_poses_.size() - 1];
-    auto twist = estimate_twist_by_pose(pose1, pose2);
+    auto twist = localization_common::estimate_twist_by_pose(pose1, pose2);
     odom.linear_velocity = twist.linear_velocity;
     odom.angular_velocity = twist.angular_velocity;
   }
