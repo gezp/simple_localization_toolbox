@@ -86,13 +86,18 @@ bool LidarLocalization::add_gnss_odom(const localization_common::OdomData & gnss
   return true;
 }
 
-bool LidarLocalization::update(const localization_common::LidarData<pcl::PointXYZ> & lidar_data)
+bool LidarLocalization::update(
+  const localization_common::LidarData<localization_common::PointXYZIRT> & lidar_data)
 {
   has_new_local_map_ = false;
-  current_lidar_data_ = lidar_data;
+  current_lidar_data_.time = lidar_data.time;
+  current_lidar_data_.point_cloud =
+    pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::copyPointCloud(*lidar_data.point_cloud, *current_lidar_data_.point_cloud);
   // remove invalid measurements
   std::vector<int> indices;
-  pcl::removeNaNFromPointCloud(*lidar_data.point_cloud, *lidar_data.point_cloud, indices);
+  pcl::removeNaNFromPointCloud(
+    *current_lidar_data_.point_cloud, *current_lidar_data_.point_cloud, indices);
   // initialize if not
   if (!has_inited_) {
     if (init_global_localization()) {
@@ -146,6 +151,15 @@ localization_common::OdomData LidarLocalization::get_current_odom()
   localization_common::OdomData odom;
   odom.time = current_lidar_frame_.time;
   odom.pose = current_lidar_frame_.pose * T_lidar_base_;
+  if (history_frames_.size() >= 2) {
+    auto & frame1 = history_frames_[history_frames_.size() - 2];
+    auto & frame2 = history_frames_[history_frames_.size() - 1];
+    auto twist = localization_common::estimate_twist_by_pose(
+      frame1.pose, frame2.pose, frame1.time,
+      frame2.time);
+    odom.linear_velocity = twist.linear_velocity;
+    odom.angular_velocity = twist.angular_velocity;
+  }
   return odom;
 }
 

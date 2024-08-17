@@ -49,6 +49,7 @@ def generate_launch_description():
         parameters=[
             {
                 "lidar_localization_config": lidar_localization_config,
+                "undistort_point_cloud": False,
                 "data_path": data_dir,
                 "publish_tf": True,
                 "base_frame_id": "base_link",
@@ -66,7 +67,7 @@ def generate_launch_description():
                 "trajectory_path": data_dir + "/trajectory",
                 "odom_names": ["ground_truth", "lidar_pose"],
                 "odom_topics": ["synced_gnss/pose", "localization/lidar/pose"],
-                "reference_odom_name": "lidar_pose",
+                "reference_odom_name": "ground_truth",
             }
         ],
         output="screen",

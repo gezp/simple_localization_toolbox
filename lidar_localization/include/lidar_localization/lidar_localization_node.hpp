@@ -28,6 +28,7 @@
 #include "localization_common/publisher/cloud_publisher.hpp"
 #include "localization_common/publisher/odometry_publisher.hpp"
 #include "localization_common/extrinsics_manager.hpp"
+#include "localization_common/sensor_data_utils.hpp"
 #include "lidar_localization/lidar_localization.hpp"
 
 namespace lidar_localization
@@ -61,13 +62,15 @@ private:
   Eigen::Matrix4d T_base_lidar_ = Eigen::Matrix4d::Identity();
   bool is_valid_extrinsics_{false};
   bool publish_tf_{false};
+  bool undistort_point_cloud_{false};
   // lidar_localization and process thread
   std::shared_ptr<LidarLocalization> lidar_localization_;
   std::unique_ptr<std::thread> run_thread_;
   bool exit_{false};
   // data
-  std::deque<localization_common::LidarData<pcl::PointXYZ>> lidar_data_buffer_;
+  std::deque<localization_common::LidarData<localization_common::PointXYZIRT>> lidar_data_buffer_;
   std::deque<localization_common::GnssData> gnss_data_buffer_;
   std::deque<localization_common::OdomData> gnss_odom_buffer_;
+  localization_common::TwistData last_twist_;
 };
 }  // namespace lidar_localization

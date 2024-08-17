@@ -43,7 +43,7 @@ public:
   void set_extrinsic(const Eigen::Matrix4d & T_base_lidar);
   bool add_gnss_data(const localization_common::GnssData & gnss_data);
   bool add_gnss_odom(const localization_common::OdomData & gnss_odom);
-  bool update(const localization_common::LidarData<pcl::PointXYZ> & lidar_data);
+  bool update(const localization_common::LidarData<localization_common::PointXYZIRT> & lidar_data);
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_current_scan();
   localization_common::OdomData get_current_odom();
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_global_map();

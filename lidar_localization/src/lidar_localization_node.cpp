@@ -15,7 +15,10 @@
 #include "lidar_localization/lidar_localization_node.hpp"
 
 #include <filesystem>
+
 #include "localization_common/msg_utils.hpp"
+#include "localization_common/sensor_data_utils.hpp"
+#include "localization_common/lidar_utils.hpp"
 
 namespace lidar_localization
 {
@@ -25,11 +28,13 @@ LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
   std::string data_path;
   node->declare_parameter("lidar_localization_config", lidar_localization_config);
   node->declare_parameter("data_path", data_path);
+  node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->declare_parameter("publish_tf", publish_tf_);
   node->declare_parameter("base_frame_id", base_frame_id_);
   node->declare_parameter("lidar_frame_id", lidar_frame_id_);
   node->get_parameter("lidar_localization_config", lidar_localization_config);
   node->get_parameter("data_path", data_path);
+  node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->get_parameter("publish_tf", publish_tf_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
@@ -120,6 +125,10 @@ bool LidarLocalizationNode::run()
   // process lidar data
   if (!lidar_data_buffer_.empty()) {
     auto current_lidar_data = lidar_data_buffer_.front();
+    // undistort point cloud
+    if (undistort_point_cloud_) {
+      localization_common::undistort_point_cloud(current_lidar_data, last_twist_);
+    }
     if (lidar_localization_->update(current_lidar_data)) {
       publish_data();
     }
@@ -142,6 +151,7 @@ bool LidarLocalizationNode::publish_data()
   // publish lidar pose
   auto odom = lidar_localization_->get_current_odom();
   lidar_pose_pub_->publish(odom);
+  last_twist_ = localization_common::get_twist_from_odom(odom);
   // publish tf
   if (publish_tf_) {
     geometry_msgs::msg::TransformStamped msg;

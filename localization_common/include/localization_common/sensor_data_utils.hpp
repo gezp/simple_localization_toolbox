@@ -48,6 +48,9 @@ OdomData interpolate_odom(const OdomData & data1, const OdomData & data2, double
 
 TwistData get_twist_from_odom(const OdomData & odom);
 
-TwistData estimate_twist_by_pose(PoseData pose1, PoseData pose2);
+TwistData estimate_twist_by_pose(
+  const Eigen::Matrix4d & pose1, const Eigen::Matrix4d & pose2, double t1, double t2);
+
+TwistData estimate_twist_by_pose(const PoseData & pose1, const PoseData & pose2);
 
 }  // namespace localization_common
