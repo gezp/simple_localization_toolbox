@@ -142,7 +142,7 @@ bool SimpleEvaluatorNode::save_trajectory()
   double start_time = 0;
   double end_time = std::numeric_limits<double>::max();
   for (size_t i = 0; i < odom_names_.size(); i++) {
-    if (odom_data_buffers_[i].get_size() == 0) {
+    if (odom_data_buffers_[i].size() == 0) {
       RCLCPP_INFO(node_->get_logger(), "no data in odom [%s], skip", odom_names_[i].c_str());
       continue;
     }
@@ -160,7 +160,7 @@ bool SimpleEvaluatorNode::save_trajectory()
     return false;
   }
   // timestamp from reference_odom buffer
-  if (odom_data_buffers_[reference_odom_index_].get_size() == 0) {
+  if (odom_data_buffers_[reference_odom_index_].size() == 0) {
     RCLCPP_ERROR(
       node_->get_logger(), "failed to save trajectory due to no data in reference_odom [%s]",
       odom_names_[reference_odom_index_].c_str());
@@ -188,7 +188,7 @@ bool SimpleEvaluatorNode::save_trajectory()
     odom_names_[reference_odom_index_].c_str(), invalid_cnt, start_index, end_index, valid_cnt);
   // save odoms
   for (size_t i = 0; i < odom_names_.size(); i++) {
-    if (odom_data_buffers_[i].get_size() == 0) {
+    if (odom_data_buffers_[i].size() == 0) {
       continue;
     }
     auto name = odom_names_[i];

@@ -115,7 +115,7 @@ bool KittiPreprocessNode::run()
       valid_data = true;
     }
   }
-  if (gnss_odom_buffer_->get_size() == 0) {
+  if (gnss_odom_buffer_->size() == 0) {
     return false;
   }
   // process lidar data

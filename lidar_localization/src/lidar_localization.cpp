@@ -321,7 +321,7 @@ bool LidarLocalization::get_initial_pose_by_gnss_data(Eigen::Matrix4d & initial_
 
 bool LidarLocalization::get_initial_pose_by_gnss_odometry(Eigen::Matrix4d & initial_pose)
 {
-  if (gnss_odom_buffer_->get_size() == 0) {
+  if (gnss_odom_buffer_->size() == 0) {
     return false;
   }
   // get gnss odom at time of current_lidar_data

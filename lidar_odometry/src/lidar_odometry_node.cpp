@@ -148,7 +148,7 @@ bool LidarOdometryNode::get_initial_pose_by_reference_odom(
   }
   // check
   is_old_data = false;
-  if (ref_odom_buffer_->get_size() == 0) {
+  if (ref_odom_buffer_->size() == 0) {
     return false;
   }
   if (time < ref_odom_buffer_->get_start_time()) {

@@ -40,7 +40,7 @@ public:
   void remove_before(double time);
   void remove_after(double time);
   // size
-  size_t get_size();
+  size_t size();
   void set_max_buffer_size(size_t max_buffer_size);
 
 private:

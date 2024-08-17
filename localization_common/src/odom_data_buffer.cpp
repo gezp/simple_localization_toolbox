@@ -131,7 +131,7 @@ void OdomDataBuffer::remove_after(double time)
   buffer_.erase(cur, buffer_.end());
 }
 
-size_t OdomDataBuffer::get_size() {return buffer_.size();}
+size_t OdomDataBuffer::size() {return buffer_.size();}
 
 void OdomDataBuffer::set_max_buffer_size(size_t max_buffer_size)
 {
