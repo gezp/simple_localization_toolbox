@@ -104,4 +104,26 @@ OdomData interpolate_odom(const OdomData & data1, const OdomData & data2, double
   return output;
 }
 
+TwistData get_twist_from_odom(const OdomData & odom)
+{
+  TwistData twist;
+  twist.time = odom.time;
+  twist.linear_velocity = odom.linear_velocity;
+  twist.angular_velocity = odom.angular_velocity;
+  return twist;
+}
+
+TwistData estimate_twist_by_pose(PoseData pose1, PoseData pose2)
+{
+  double dt = pose2.time - pose1.time;
+  auto t12 = (pose2.pose.block<3, 1>(0, 3) - pose1.pose.block<3, 1>(0, 3)).eval();
+  auto r12 = (pose1.pose.block<3, 3>(0, 0).inverse() * pose2.pose.block<3, 3>(0, 0)).eval();
+  Eigen::AngleAxisd rotation_vector(r12);
+  TwistData twist;
+  twist.time = pose2.time;
+  twist.linear_velocity = t12 / dt;
+  twist.angular_velocity = rotation_vector.axis() * rotation_vector.angle() / dt;
+  return transform_twist(twist, pose2.pose.inverse());
+}
+
 }  // namespace localization_common

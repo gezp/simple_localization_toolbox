@@ -27,6 +27,7 @@
 #include "localization_common/subscriber/odometry_subscriber.hpp"
 #include "localization_common/extrinsics_manager.hpp"
 #include "localization_common/msg_utils.hpp"
+#include "localization_common/sensor_data_utils.hpp"
 #include "localization_common/odom_data_buffer.hpp"
 #include "localization_common/tic_toc.hpp"
 #include "lidar_odometry/simple_odometry.hpp"
@@ -80,9 +81,11 @@ private:
   // data
   std::deque<LidarMsgData> lidar_data_buffer_;
   std::shared_ptr<localization_common::OdomDataBuffer> ref_odom_buffer_;
+  localization_common::TwistData last_twist_;
   // params
   Eigen::Matrix4d T_map_odom_ = Eigen::Matrix4d::Identity();
   bool use_initial_pose_from_topic_{false};
+  bool undistort_point_cloud_{false};
   bool inited_{false};
   // debug
   localization_common::AdvancedTicToc elapsed_time_statistics_;

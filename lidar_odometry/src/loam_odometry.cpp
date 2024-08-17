@@ -14,6 +14,8 @@
 
 #include "lidar_odometry/loam_odometry.hpp"
 
+#include "localization_common/sensor_data_utils.hpp"
+
 namespace lidar_odometry
 {
 
@@ -89,6 +91,13 @@ localization_common::OdomData LoamOdometry::get_current_odom()
   localization_common::OdomData odom;
   odom.time = current_frame_.time;
   odom.pose = current_frame_.pose * T_lidar_base_;
+  if (history_poses_.size() >= 2) {
+    auto & pose1 = history_poses_[history_poses_.size() - 2];
+    auto & pose2 = history_poses_[history_poses_.size() - 1];
+    auto twist = estimate_twist_by_pose(pose1, pose2);
+    odom.linear_velocity = twist.linear_velocity;
+    odom.angular_velocity = twist.angular_velocity;
+  }
   return odom;
 }
 

@@ -18,6 +18,7 @@
 #include <filesystem>
 
 #include "localization_common/sensor_data_utils.hpp"
+#include "localization_common/lidar_utils.hpp"
 
 namespace lidar_odometry
 {
@@ -33,11 +34,13 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   node->declare_parameter("lidar_odometry_config", lidar_odometry_config);
   node->declare_parameter("publish_tf", publish_tf_);
   node->declare_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
+  node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->declare_parameter("base_frame_id", base_frame_id_);
   node->declare_parameter("lidar_frame_id", lidar_frame_id_);
   node->get_parameter("lidar_odometry_config", lidar_odometry_config);
   node->get_parameter("publish_tf", publish_tf_);
   node->get_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
+  node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
   RCLCPP_INFO(node->get_logger(), "lidar_odometry_config: [%s]", lidar_odometry_config.c_str());
@@ -185,12 +188,15 @@ void LidarOdometryNode::set_extrinsics_for_odometry(
 bool LidarOdometryNode::update_odometry(OdometryMethod method, const LidarMsgData & msg_data)
 {
   elapsed_time_statistics_.tic("update_odometry");
+  auto lidar_data = cloud_sub_->to_lidar_data<localization_common::PointXYZIRT>(msg_data);
+  // undistort point cloud
+  if (undistort_point_cloud_) {
+    undistort_point_cloud(lidar_data, last_twist_);
+  }
   bool success = false;
   if (method == OdometryMethod::Simple) {
-    auto lidar_data = cloud_sub_->to_lidar_data<pcl::PointXYZ>(msg_data);
     success = simple_odometry_->update(lidar_data);
   } else if (method == OdometryMethod::Loam) {
-    auto lidar_data = cloud_sub_->to_lidar_data<localization_common::PointXYZIRT>(msg_data);
     success = loam_odometry_->update(lidar_data);
   }
   elapsed_time_statistics_.toc("update_odometry");
@@ -226,9 +232,10 @@ void LidarOdometryNode::publish_odom(const localization_common::OdomData & odom)
 void LidarOdometryNode::publish_data(OdometryMethod method)
 {
   elapsed_time_statistics_.tic("publish_data");
+  localization_common::OdomData odom;
   if (method == OdometryMethod::Simple) {
     // publish odom
-    auto odom = align_odom_to_map(simple_odometry_->get_current_odom());
+    odom = align_odom_to_map(simple_odometry_->get_current_odom());
     publish_odom(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
@@ -243,7 +250,7 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
     }
   } else if (method == OdometryMethod::Loam) {
     // publish odom
-    auto odom = align_odom_to_map(loam_odometry_->get_current_odom());
+    odom = align_odom_to_map(loam_odometry_->get_current_odom());
     publish_odom(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
@@ -257,6 +264,9 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
       loam_feature_pub_->publish(*feature_scan);
     }
   }
+  last_twist_.time = odom.time;
+  last_twist_.linear_velocity = odom.linear_velocity;
+  last_twist_.angular_velocity = odom.angular_velocity;
   elapsed_time_statistics_.toc("publish_data");
 }
 

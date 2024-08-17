@@ -16,6 +16,8 @@
 
 #include <pcl/common/transforms.h>
 
+#include "localization_common/sensor_data_utils.hpp"
+
 namespace lidar_odometry
 {
 SimpleOdometry::SimpleOdometry(const YAML::Node & config)
@@ -48,11 +50,14 @@ void SimpleOdometry::set_extrinsic(const Eigen::Matrix4d & T_base_lidar)
 }
 
 
-bool SimpleOdometry::update(const localization_common::LidarData<pcl::PointXYZ> & lidar_data)
+bool SimpleOdometry::update(
+  const localization_common::LidarData<localization_common::PointXYZIRT> & lidar_data)
 {
   has_new_local_map_ = false;
   current_frame_.time = lidar_data.time;
-  current_frame_.point_cloud = lidar_data.point_cloud;
+  current_frame_.point_cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(
+    new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::copyPointCloud(*lidar_data.point_cloud, *current_frame_.point_cloud);
   if (key_frames_.empty()) {
     // initialize the first frame
     current_frame_.pose = T_base_lidar_;
@@ -82,6 +87,13 @@ localization_common::OdomData SimpleOdometry::get_current_odom()
   localization_common::OdomData odom;
   odom.time = current_frame_.time;
   odom.pose = current_frame_.pose * T_lidar_base_;
+  if (history_poses_.size() >= 2) {
+    auto & pose1 = history_poses_[history_poses_.size() - 2];
+    auto & pose2 = history_poses_[history_poses_.size() - 1];
+    auto twist = estimate_twist_by_pose(pose1, pose2);
+    odom.linear_velocity = twist.linear_velocity;
+    odom.angular_velocity = twist.angular_velocity;
+  }
   return odom;
 }
 

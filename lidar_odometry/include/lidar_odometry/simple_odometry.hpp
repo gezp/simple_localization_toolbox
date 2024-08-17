@@ -41,7 +41,7 @@ public:
   explicit SimpleOdometry(const YAML::Node & config);
   ~SimpleOdometry() = default;
   void set_extrinsic(const Eigen::Matrix4d & T_base_lidar);
-  bool update(const localization_common::LidarData<pcl::PointXYZ> & lidar_data);
+  bool update(const localization_common::LidarData<localization_common::PointXYZIRT> & lidar_data);
   localization_common::OdomData get_current_odom();
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_current_scan();
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_local_map();

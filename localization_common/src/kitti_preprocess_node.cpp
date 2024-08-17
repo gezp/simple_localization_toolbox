@@ -25,11 +25,9 @@ KittiPreprocessNode::KittiPreprocessNode(rclcpp::Node::SharedPtr node)
   node->declare_parameter("use_manual_map_origin", use_manual_map_origin_);
   node->declare_parameter("map_origin", map_origin_);
   node->declare_parameter("publish_tf", publish_tf_);
-  node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->get_parameter("use_manual_map_origin", use_manual_map_origin_);
   node->get_parameter("map_origin", map_origin_);
   node->get_parameter("publish_tf", publish_tf_);
-  node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
   if (map_origin_.size() != 3) {
     RCLCPP_FATAL(
       node->get_logger(), "map_origin's size must be 3 for (latitude, longitude, altitude)");
@@ -132,19 +130,6 @@ bool KittiPreprocessNode::run()
     // convert lidar data
     LidarData<PointXYZIRT> current_lidar_data;
     convert_velodyne64(lidar_data, current_lidar_data, 0.1, false);
-    // undistort point cloud
-    if (undistort_point_cloud_) {
-      // get sync gnss odom
-      OdomData synced_odom;
-      gnss_odom_buffer_->get_interpolated_data(current_lidar_data.time, synced_odom);
-      auto odom_lidar = transform_odom(synced_odom, T_base_lidar_);
-      TwistData twist_lidar;
-      twist_lidar.time = odom_lidar.time;
-      twist_lidar.linear_velocity = odom_lidar.linear_velocity;
-      twist_lidar.angular_velocity = odom_lidar.angular_velocity;
-      // undistort
-      undistort_point_cloud(current_lidar_data, twist_lidar);
-    }
     // publish lidar point cloud
     cloud_pub_->publish(current_lidar_data);
     // update buffer

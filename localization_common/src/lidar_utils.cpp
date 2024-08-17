@@ -124,7 +124,7 @@ bool undistort_point_cloud(LidarData<PointXYZIRT> & lidar_data, const TwistData 
     auto & p = lidar_data.point_cloud->points[i];
     Eigen::Vector3d point(p.x, p.y, p.z);
     // lidar motion
-    Eigen::Matrix4d T = integrate_twist(twist_data, p.time - lidar_data.time, true);
+    Eigen::Matrix4d T = integrate_twist(twist_data, p.time - lidar_data.time, false);
     // Rp + t
     Eigen::Vector3d undistort_point = T.block<3, 3>(0, 0) * point + T.block<3, 1>(0, 3);
     // update point xyz
