@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_lio_mapping/graph_optimizer/g2o_graph_optimizer.hpp"
+#include "slt_lidar_mapping/optimizer/prvag_optimizer_g2o.hpp"
 
 #include "slt_common/tic_toc.hpp"
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
-G2oGraphOptimizer::G2oGraphOptimizer(const YAML::Node & node)
+G2oGraphOptimizerPRVAG::G2oGraphOptimizerPRVAG(const YAML::Node & node)
 {
   double accel_noise = node["imu_noise"]["accel"].as<double>();
   double gyro_noise = node["imu_noise"]["gyro"].as<double>();
@@ -50,7 +50,7 @@ G2oGraphOptimizer::G2oGraphOptimizer(const YAML::Node & node)
   robust_kernel_factory_ = g2o::RobustKernelFactory::instance();
 }
 
-void G2oGraphOptimizer::add_vertex(
+void G2oGraphOptimizerPRVAG::add_vertex(
   const slt_common::ImuNavState & state, const bool need_fix)
 {
   // init:
@@ -75,7 +75,7 @@ void G2oGraphOptimizer::add_vertex(
   graph_->addVertex(vertex);
 }
 
-void G2oGraphOptimizer::add_relative_pose_edge(
+void G2oGraphOptimizerPRVAG::add_relative_pose_edge(
   int v0, int v1, const Eigen::Matrix4d & relative_pose, const Eigen::VectorXd & noise)
 {
   // init
@@ -102,7 +102,7 @@ void G2oGraphOptimizer::add_relative_pose_edge(
   graph_->addEdge(edge);
 }
 
-void G2oGraphOptimizer::add_prior_position_edge(
+void G2oGraphOptimizerPRVAG::add_prior_position_edge(
   int v0, const Eigen::Vector3d & pos, const Eigen::Vector3d & noise)
 {
   // init:
@@ -122,7 +122,7 @@ void G2oGraphOptimizer::add_prior_position_edge(
   graph_->addEdge(edge);
 }
 
-void G2oGraphOptimizer::add_imu_pre_integration_edge(
+void G2oGraphOptimizerPRVAG::add_imu_pre_integration_edge(
   int v0, int v1, const std::vector<slt_common::ImuData> & imus)
 {
   // pre-integration
@@ -155,7 +155,7 @@ void G2oGraphOptimizer::add_imu_pre_integration_edge(
   graph_->addEdge(edge);
 }
 
-bool G2oGraphOptimizer::optimize()
+bool G2oGraphOptimizerPRVAG::optimize()
 {
   static int optimize_cnt = 0;
   if (graph_->edges().size() < 1) {
@@ -186,9 +186,9 @@ bool G2oGraphOptimizer::optimize()
   return true;
 }
 
-int G2oGraphOptimizer::get_vertex_num() {return graph_->vertices().size();}
+int G2oGraphOptimizerPRVAG::get_vertex_num() {return graph_->vertices().size();}
 
-slt_common::ImuNavState G2oGraphOptimizer::create_nav_state(int vertex_id)
+slt_common::ImuNavState G2oGraphOptimizerPRVAG::create_nav_state(int vertex_id)
 {
   g2o::VertexPRVAG * v = dynamic_cast<g2o::VertexPRVAG *>(graph_->vertex(vertex_id));
   const g2o::PRVAG & vertex_state = v->estimate();
@@ -204,7 +204,7 @@ slt_common::ImuNavState G2oGraphOptimizer::create_nav_state(int vertex_id)
   return state;
 }
 
-std::deque<slt_common::ImuNavState> G2oGraphOptimizer::get_optimized_vertices()
+std::deque<slt_common::ImuNavState> G2oGraphOptimizerPRVAG::get_optimized_vertices()
 {
   std::deque<slt_common::ImuNavState> nav_states;
   const int N = graph_->vertices().size();
@@ -214,7 +214,7 @@ std::deque<slt_common::ImuNavState> G2oGraphOptimizer::get_optimized_vertices()
   return nav_states;
 }
 
-void G2oGraphOptimizer::SetEdgeRobustKernel(
+void G2oGraphOptimizerPRVAG::SetEdgeRobustKernel(
   std::string robust_kernel_name, double robust_kernel_size)
 {
   robust_kernel_name_ = robust_kernel_name;
@@ -222,14 +222,14 @@ void G2oGraphOptimizer::SetEdgeRobustKernel(
   need_robust_kernel_ = true;
 }
 
-Eigen::MatrixXd G2oGraphOptimizer::CalculateSe3EdgeInformationMatrix(Eigen::VectorXd noise)
+Eigen::MatrixXd G2oGraphOptimizerPRVAG::CalculateSe3EdgeInformationMatrix(Eigen::VectorXd noise)
 {
   Eigen::MatrixXd information_matrix = Eigen::MatrixXd::Identity(6, 6);
   information_matrix = CalculateDiagMatrix(noise);
   return information_matrix;
 }
 
-void G2oGraphOptimizer::AddRobustKernel(
+void G2oGraphOptimizerPRVAG::AddRobustKernel(
   g2o::OptimizableGraph::Edge * edge, const std::string & kernel_type, double kernel_size)
 {
   if (kernel_type == "NONE") {
@@ -246,7 +246,7 @@ void G2oGraphOptimizer::AddRobustKernel(
   edge->setRobustKernel(kernel);
 }
 
-Eigen::MatrixXd G2oGraphOptimizer::CalculateDiagMatrix(Eigen::VectorXd noise)
+Eigen::MatrixXd G2oGraphOptimizerPRVAG::CalculateDiagMatrix(Eigen::VectorXd noise)
 {
   Eigen::MatrixXd information_matrix = Eigen::MatrixXd::Identity(noise.rows(), noise.rows());
   for (int i = 0; i < noise.rows(); i++) {
@@ -255,4 +255,4 @@ Eigen::MatrixXd G2oGraphOptimizer::CalculateDiagMatrix(Eigen::VectorXd noise)
   return information_matrix;
 }
 
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

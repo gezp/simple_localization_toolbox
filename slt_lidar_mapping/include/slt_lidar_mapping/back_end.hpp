@@ -27,7 +27,7 @@
 #include "slt_common/cloud_filter/voxel_filter.hpp"
 #include "slt_common/lidar_key_frame_manager.hpp"
 #include "slt_common/odom_data_buffer.hpp"
-#include "slt_lidar_mapping/graph_optimizer/g2o_graph_optimizer.hpp"
+#include "slt_lidar_mapping/optimizer/se3_optimizer_g2o.hpp"
 
 namespace slt_lidar_mapping
 {

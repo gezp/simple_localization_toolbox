@@ -29,9 +29,9 @@
 #include "slt_common/cloud_filter/voxel_filter.hpp"
 #include "slt_common/lidar_key_frame_manager.hpp"
 #include "slt_common/odom_data_buffer.hpp"
-#include "slt_lio_mapping/graph_optimizer/g2o_graph_optimizer.hpp"
+#include "slt_lidar_mapping/optimizer/prvag_optimizer_g2o.hpp"
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
 
 class LioBackEnd
@@ -66,7 +66,7 @@ private:
   std::shared_ptr<slt_common::VoxelFilter> display_filter_;
   std::shared_ptr<slt_common::VoxelFilter> global_map_filter_;
   // optimizer
-  std::shared_ptr<GraphOptimizerInterface> graph_optimizer_;
+  std::shared_ptr<GraphOptimizerInterfacePRVAG> graph_optimizer_;
   // data
   std::deque<slt_common::ImuData> imu_buffer_;
   std::shared_ptr<slt_common::OdomDataBuffer> gnss_odom_buffer_;
@@ -97,4 +97,4 @@ private:
   int new_key_frame_cnt_ = 0;
 };
 
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

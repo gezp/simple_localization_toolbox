@@ -28,7 +28,7 @@
 #include <iostream>
 #include <sophus/so3.hpp>
 
-#include "slt_lio_mapping/graph_optimizer/g2o/vertex_prvag.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/vertex_prvag.hpp"
 
 typedef Eigen::Matrix<double, 15, 1> Vector15d;
 

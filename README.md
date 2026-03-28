@@ -58,7 +58,7 @@ lidar + imu 多传感器融合定位
 
 - [X] 实现imu里程计(常规积分，预积分): `slt_imu_odometry`
 - [X] 实现基于卡尔曼滤波的定位功能(eskf): `slt_eskf_locator`
-- [X] 实现基于松耦合LIO的建图功能: `slt_lio_mapping`
+- [X] 实现基于松耦合LIO的建图功能: `slt_lidar_mapping`
 - [X] 实现基于图优化的定位功能(sliding window): `slt_graph_locator`
 
 代码优化及扩展

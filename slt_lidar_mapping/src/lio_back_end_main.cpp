@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include "rclcpp/rclcpp.hpp"
-#include "slt_lio_mapping/lio_back_end_node.hpp"
+#include "slt_lidar_mapping/lio_back_end_node.hpp"
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("back_end_node");
-  auto back_end_node = std::make_shared<slt_lio_mapping::LioBackEndNode>(node);
+  auto back_end_node = std::make_shared<slt_lidar_mapping::LioBackEndNode>(node);
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;

@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(slt_interface REQUIRED)
 find_package(slt_common REQUIRED)
+find_package(slt_imu_odometry REQUIRED)
 find_package(scan_context REQUIRED)
 
 find_package(g2o REQUIRED
@@ -32,13 +33,16 @@ set(dependencies
   rclcpp
   slt_interface
   slt_common
+  slt_imu_odometry
   scan_context
 )
 
 # slt_lidar_mapping libaray
 add_library(${PROJECT_NAME} SHARED
-  src/graph_optimizer/g2o_graph_optimizer.cpp
+  src/optimizer/se3_optimizer_g2o.cpp
+  src/optimizer/prvag_optimizer_g2o.cpp
   src/back_end.cpp
+  src/lio_back_end.cpp
   src/loop_closure.cpp
 )
 
@@ -57,6 +61,12 @@ add_executable(back_end_node
   src/back_end_node.cpp
   src/back_end_main.cpp)
 target_link_libraries(back_end_node ${PROJECT_NAME})
+
+# lio_back_end_node
+add_executable(lio_back_end_node
+  src/lio_back_end_node.cpp
+  src/lio_back_end_main.cpp)
+target_link_libraries(lio_back_end_node ${PROJECT_NAME})
 
 # loop_closure_node
 add_executable(loop_closure_node
@@ -81,6 +91,7 @@ install(TARGETS ${PROJECT_NAME}
 # install
 install(TARGETS
     back_end_node
+    lio_back_end_node
     loop_closure_node
   DESTINATION lib/${PROJECT_NAME}
 )

@@ -21,13 +21,13 @@
 #include "slt_common/sensor_data/imu_data.hpp"
 #include "slt_common/sensor_data/imu_nav_state.hpp"
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
 
-class GraphOptimizerInterface
+class GraphOptimizerInterfacePRVAG
 {
 public:
-  virtual ~GraphOptimizerInterface() {}
+  virtual ~GraphOptimizerInterfacePRVAG() {}
   // 添加节点、边
   virtual void add_vertex(const slt_common::ImuNavState & state, bool need_fix) = 0;
   virtual void add_relative_pose_edge(
@@ -42,4 +42,4 @@ public:
   virtual std::deque<slt_common::ImuNavState> get_optimized_vertices() = 0;
   virtual int get_vertex_num() = 0;
 };
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

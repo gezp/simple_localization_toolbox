@@ -13,6 +13,7 @@
   <depend>rclcpp</depend>
   <depend>slt_interface</depend>
   <depend>slt_common</depend>
+  <depend>slt_imu_odometry</depend>
   <depend>scan_context</depend>
   <depend>libg2o</depend>
   <depend>sophus</depend>

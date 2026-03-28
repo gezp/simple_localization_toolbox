@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_lio_mapping/lio_back_end_node.hpp"
+#include "slt_lidar_mapping/lio_back_end_node.hpp"
 
 #include <filesystem>
 #include "slt_common/msg_utils.hpp"
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
 LioBackEndNode::LioBackEndNode(rclcpp::Node::SharedPtr node)
 {
@@ -241,4 +241,4 @@ bool LioBackEndNode::publish_data()
   return true;
 }
 
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

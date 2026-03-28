@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_lidar_mapping/graph_optimizer/g2o_graph_optimizer.hpp"
+#include "slt_lidar_mapping/optimizer/se3_optimizer_g2o.hpp"
 
 #include "slt_common/tic_toc.hpp"
 

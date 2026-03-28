@@ -30,9 +30,9 @@
 #include <memory>
 #include <string>
 //
-#include "slt_lidar_mapping/graph_optimizer/g2o/edge_se3_priorquat.hpp"
-#include "slt_lidar_mapping/graph_optimizer/g2o/edge_se3_priorxyz.hpp"
-#include "slt_lidar_mapping/graph_optimizer/graph_optimizer_interface.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/edge_se3_priorquat.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/edge_se3_priorxyz.hpp"
+#include "slt_lidar_mapping/optimizer/optimizer_interface.hpp"
 
 namespace g2o
 {

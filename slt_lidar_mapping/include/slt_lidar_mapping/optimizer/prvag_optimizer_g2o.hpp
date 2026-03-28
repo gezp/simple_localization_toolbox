@@ -31,12 +31,12 @@
 #include <string>
 #include <vector>
 //
-#include "slt_lio_mapping/graph_optimizer/g2o/edge_prvag_imu_pre_integration.hpp"
-#include "slt_lio_mapping/graph_optimizer/g2o/edge_prvag_prior_pos.hpp"
-#include "slt_lio_mapping/graph_optimizer/g2o/edge_prvag_relative_pose.hpp"
-#include "slt_lio_mapping/graph_optimizer/g2o/vertex_prvag.hpp"
-#include "slt_lio_mapping/graph_optimizer/graph_optimizer_interface.hpp"
 #include "slt_imu_odometry/imu_pre_integration.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/edge_prvag_imu_pre_integration.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/edge_prvag_prior_pos.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/edge_prvag_relative_pose.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/vertex_prvag.hpp"
+#include "slt_lidar_mapping/optimizer/optimizer_interface_prvag.hpp"
 
 namespace g2o
 {
@@ -54,16 +54,17 @@ class RobustKernelFactory;
 }  // namespace g2o
 
 G2O_USE_TYPE_GROUP(slam3d);
+
 G2O_USE_OPTIMIZATION_LIBRARY(pcg)
 G2O_USE_OPTIMIZATION_LIBRARY(cholmod)
 G2O_USE_OPTIMIZATION_LIBRARY(csparse)
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
-class G2oGraphOptimizer : public GraphOptimizerInterface
+class G2oGraphOptimizerPRVAG : public GraphOptimizerInterfacePRVAG
 {
 public:
-  explicit G2oGraphOptimizer(const YAML::Node & node);
+  explicit G2oGraphOptimizerPRVAG(const YAML::Node & node);
   void set_gravity(Eigen::Vector3d gravity) {gravity_ = gravity;}
   //
   void add_vertex(const slt_common::ImuNavState & state, bool need_fix) override;
@@ -98,4 +99,4 @@ private:
   Eigen::Vector3d gravity_;
   std::shared_ptr<slt_imu_odometry::ImuPreIntegration> imu_pre_integration_;
 };
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

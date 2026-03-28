@@ -23,13 +23,12 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_slt_lidar_odometry = get_package_share_directory("slt_lidar_odometry")
     pkg_slt_lidar_mapping = get_package_share_directory("slt_lidar_mapping")
-    pkg_slt_lio_mapping = get_package_share_directory("slt_lio_mapping")
-    rviz2_config = os.path.join(pkg_slt_lio_mapping, "launch", "lio_mapping.rviz")
+    rviz2_config = os.path.join(pkg_slt_lidar_mapping, "launch", "lio_mapping.rviz")
     lidar_odometry_config = os.path.join(
         pkg_slt_lidar_odometry, "config", "lidar_odometry.yaml"
     )
     back_end_config = os.path.join(
-        pkg_slt_lio_mapping, "config", "lio_back_end.yaml"
+        pkg_slt_lidar_mapping, "config", "lio_back_end.yaml"
     )
     loop_closure_config = os.path.join(pkg_slt_lidar_mapping, "config", "loop_closure.yaml")
     data_dir = os.path.join(os.environ["HOME"], "localization_data")
@@ -63,7 +62,7 @@ def generate_launch_description():
     )
     back_end_node = Node(
         name="back_end_node",
-        package="slt_lio_mapping",
+        package="slt_lidar_mapping",
         executable="lio_back_end_node",
         parameters=[
             {

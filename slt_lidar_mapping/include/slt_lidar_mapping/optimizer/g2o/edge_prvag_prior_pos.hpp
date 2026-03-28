@@ -27,7 +27,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 
-#include "slt_lio_mapping/graph_optimizer/g2o/vertex_prvag.hpp"
+#include "slt_lidar_mapping/optimizer/g2o/vertex_prvag.hpp"
 
 namespace g2o
 {

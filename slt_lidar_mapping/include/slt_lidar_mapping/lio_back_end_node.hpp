@@ -33,9 +33,9 @@
 #include "slt_common/publisher/odometry_publisher.hpp"
 #include "slt_common/extrinsics_manager.hpp"
 #include "slt_common/msg_utils.hpp"
-#include "slt_lio_mapping/lio_back_end.hpp"
+#include "slt_lidar_mapping/lio_back_end.hpp"
 
-namespace slt_lio_mapping
+namespace slt_lidar_mapping
 {
 class LioBackEndNode
 {
@@ -93,4 +93,4 @@ private:
   slt_common::LidarData<pcl::PointXYZ> current_lidar_data_;
   slt_common::OdomData current_lidar_odom_data_;
 };
-}  // namespace slt_lio_mapping
+}  // namespace slt_lidar_mapping

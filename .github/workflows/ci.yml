@@ -45,9 +45,6 @@ jobs:
       - name: Test slt_eskf_locator
         run: |
           /usr/bin/bash .github/workflows/colcon_test.sh slt_eskf_locator
-      - name: Test slt_lio_mapping
-        run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh slt_lio_mapping
       - name: Test slt_graph_locator
         run: |
           /usr/bin/bash .github/workflows/colcon_test.sh slt_graph_locator
