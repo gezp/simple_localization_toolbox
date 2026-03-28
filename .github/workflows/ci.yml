@@ -19,7 +19,7 @@ jobs:
           /usr/bin/bash -c "apt-get update && apt-get install -y libunwind-dev libceres-dev"
       - name: Remove flake8-quotes for linter
         run: /usr/bin/bash -c "apt-get remove -y python3-flake8-quotes"
-      - name: Build localization_for_autonomous_driving
+      - name: Build simple_localization_toolbox
         uses: ros-tooling/action-ros-ci@v0.3
         with:
           target-ros2-distro: humble
