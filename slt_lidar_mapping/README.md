@@ -2,8 +2,16 @@
 
 运行demo
 
+lidar mapping
+
 ```bash
-ros2 launch slt_lidar_mapping mapping.launch.py 
+ros2 launch slt_lidar_mapping mapping.launch.py
+```
+
+lio mapping
+
+```bash
+ros2 launch slt_lidar_mapping lio_mapping.launch.py
 ```
 
 * 可修改`lidar_odometry`, `back_end`, `loop_closure`三个模块的配置文件(位于`slt_lidar_mapping/config/`中)
