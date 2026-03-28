@@ -24,30 +24,30 @@ jobs:
         with:
           target-ros2-distro: humble
           skip-tests: true
-      - name: Test localization_interfaces
+      - name: Test slt_interface
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh localization_interfaces
-      - name: Test localization_common
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_interface
+      - name: Test slt_common
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh localization_common
-      - name: Test lidar_odometry
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_common
+      - name: Test slt_lidar_odometry
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh lidar_odometry
-      - name: Test lidar_mapping
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_lidar_odometry
+      - name: Test slt_lidar_mapping
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh lidar_mapping
-      - name: Test lidar_localization
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_lidar_mapping
+      - name: Test slt_lidar_locator
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh lidar_localization
-      - name: Test imu_odometry
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_lidar_locator
+      - name: Test slt_imu_odometry
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh imu_odometry
-      - name: Test kf_based_localization
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_imu_odometry
+      - name: Test slt_eskf_locator
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh kf_based_localization
-      - name: Test loosely_lio_mapping
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_eskf_locator
+      - name: Test slt_lio_mapping
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh loosely_lio_mapping
-      - name: Test graph_based_localization
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_lio_mapping
+      - name: Test slt_graph_locator
         run: |
-          /usr/bin/bash .github/workflows/colcon_test.sh graph_based_localization
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_graph_locator

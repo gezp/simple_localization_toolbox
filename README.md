@@ -1,4 +1,4 @@
-# localization_for_autonomous_driving
+# simple localization toolbox (SLT)
 
 [![Build and Test](https://github.com/gezp/localization_for_autonomous_driving/actions/workflows/ci.yml/badge.svg?branch=humble)](https://github.com/gezp/localization_for_autonomous_driving/actions/workflows/ci.yml)
 
@@ -43,27 +43,27 @@ colcon build --symlink-install
 
 ```bash
 # 需要先source ros环境
-ros2 launch localization_common hello_kitti.launch.py
+ros2 launch slt_common hello_kitti.launch.py
 ```
 
 ## Plan
 
 lidar定位
 
-- [x] 实现lidar里程计功能: `lidar_odometry`
-- [x] 实现基于lidar的建图功能: `lidar_mapping`
-- [x] 实现基于lidar的定位功能: `lidar_localization`
+- [X] 实现lidar里程计功能: `slt_lidar_odometry`
+- [X] 实现基于lidar的建图功能: `slt_lidar_mapping`
+- [X] 实现基于lidar的定位功能: `slt_lidar_locator`
 
 lidar + imu 多传感器融合定位
 
-- [x] 实现imu里程计(常规积分，预积分): `imu_odometry`
-- [x] 实现基于卡尔曼滤波的定位功能(eskf): `kf_based_localization`
-- [x] 实现基于松耦合LIO的建图功能: `loosely_lio_mapping`
-- [x] 实现基于图优化的定位功能(sliding window): `graph_based_localization`
+- [X] 实现imu里程计(常规积分，预积分): `slt_imu_odometry`
+- [X] 实现基于卡尔曼滤波的定位功能(eskf): `slt_eskf_locator`
+- [X] 实现基于松耦合LIO的建图功能: `slt_lio_mapping`
+- [X] 实现基于图优化的定位功能(sliding window): `slt_graph_locator`
 
 代码优化及扩展
 
-- [x] 实现Loam-based Lidar Odometry
+- [X] 实现Loam-based Lidar Odometry
 - [ ] 利用gnss-ins-sim仿真数据进行imu实验
 - [ ] 支持其它slam数据集
 
