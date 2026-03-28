@@ -52,7 +52,7 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
     RCLCPP_FATAL(node->get_logger(), "lidar_odometry_config is invalid");
     return;
   }
-  // create slt_lidar_odometry
+  // create lidar_odometry
   YAML::Node config = YAML::LoadFile(lidar_odometry_config);
   std::string method = config["lidar_odometry_method"].as<std::string>();
   if (method == "simple") {

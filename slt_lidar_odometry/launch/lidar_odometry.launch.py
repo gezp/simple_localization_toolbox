@@ -22,10 +22,10 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_slt_lidar_odometry = get_package_share_directory("slt_lidar_odometry")
-    rviz2_config = os.path.join(pkg_slt_lidar_odometry, "launch", "slt_lidar_odometry.rviz")
+    rviz2_config = os.path.join(pkg_slt_lidar_odometry, "launch", "lidar_odometry.rviz")
     data_dir = os.path.join(os.environ["HOME"], "localization_data")
-    slt_lidar_odometry_config = os.path.join(
-        pkg_slt_lidar_odometry, "config", "slt_lidar_odometry.yaml"
+    lidar_odometry_config = os.path.join(
+        pkg_slt_lidar_odometry, "config", "lidar_odometry.yaml"
     )
     bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
     rosbag_node = ExecuteProcess(
@@ -40,13 +40,13 @@ def generate_launch_description():
         executable="kitti_preprocess_node",
         output="screen",
     )
-    slt_lidar_odometry_node = Node(
-        name="slt_lidar_odometry_node",
+    lidar_odometry_node = Node(
+        name="lidar_odometry_node",
         package="slt_lidar_odometry",
-        executable="slt_lidar_odometry_node",
+        executable="lidar_odometry_node",
         parameters=[
             {
-                "slt_lidar_odometry_config": slt_lidar_odometry_config,
+                "lidar_odometry_config": lidar_odometry_config,
                 "undistort_point_cloud": False,
                 "publish_undistorted_point_cloud": False,
                 "publish_tf": True,
@@ -66,7 +66,7 @@ def generate_launch_description():
             {
                 "trajectory_path": data_dir + "/trajectory",
                 "odom_names": ["ground_truth", "lidar_odom"],
-                "odom_topics": ["synced_gnss/pose", "slt_lidar_odometry/odom"],
+                "odom_topics": ["synced_gnss/pose", "lidar_odometry/odom"],
                 "reference_odom_name": "ground_truth",
             }
         ],
@@ -82,7 +82,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
     ld.add_action(kitti_preprocess_node)
-    ld.add_action(slt_lidar_odometry_node)
+    ld.add_action(lidar_odometry_node)
     ld.add_action(simple_evaluator_node)
     ld.add_action(rviz2)
     return ld

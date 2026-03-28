@@ -57,7 +57,7 @@ LioBackEndNode::LioBackEndNode(rclcpp::Node::SharedPtr node)
   gnss_pose_sub_ =
     std::make_shared<slt_common::OdometrySubscriber>(node, "synced_gnss/pose", 100000);
   lidar_odom_sub_ =
-    std::make_shared<slt_common::OdometrySubscriber>(node, "slt_lidar_odometry/odom", 100000);
+    std::make_shared<slt_common::OdometrySubscriber>(node, "lidar_odometry/odom", 100000);
   loop_candidate_sub_ =
     std::make_shared<slt_common::LoopCandidateSubscriber>(node, "loop_candidate", 100000);
   raw_imu_sub_ =

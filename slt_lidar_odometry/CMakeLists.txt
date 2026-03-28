@@ -25,17 +25,17 @@ set(dependencies
   slt_common
 )
 
-# slt_lidar_odometry_node
-add_executable(slt_lidar_odometry_node
+# lidar_odometry_node
+add_executable(lidar_odometry_node
   src/simple_odometry.cpp
   src/loam_odometry.cpp
   src/lidar_odometry_node.cpp
   src/lidar_odometry_main.cpp)
-ament_target_dependencies(slt_lidar_odometry_node ${dependencies})
+ament_target_dependencies(lidar_odometry_node ${dependencies})
 
 # install
 install(TARGETS
-    slt_lidar_odometry_node
+    lidar_odometry_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
