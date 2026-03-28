@@ -25,8 +25,8 @@ def generate_launch_description():
     pkg_slt_lidar_mapping = get_package_share_directory("slt_lidar_mapping")
     pkg_slt_lio_mapping = get_package_share_directory("slt_lio_mapping")
     rviz2_config = os.path.join(pkg_slt_lio_mapping, "launch", "lio_mapping.rviz")
-    slt_lidar_odometry_config = os.path.join(
-        pkg_slt_lidar_odometry, "config", "slt_lidar_odometry.yaml"
+    lidar_odometry_config = os.path.join(
+        pkg_slt_lidar_odometry, "config", "lidar_odometry.yaml"
     )
     back_end_config = os.path.join(
         pkg_slt_lio_mapping, "config", "lio_back_end.yaml"
@@ -46,13 +46,13 @@ def generate_launch_description():
         executable="kitti_preprocess_node",
         output="screen",
     )
-    slt_lidar_odometry_node = Node(
-        name="slt_lidar_odometry_node",
+    lidar_odometry_node = Node(
+        name="lidar_odometry_node",
         package="slt_lidar_odometry",
-        executable="slt_lidar_odometry_node",
+        executable="lidar_odometry_node",
         parameters=[
             {
-                "slt_lidar_odometry_config": slt_lidar_odometry_config,
+                "lidar_odometry_config": lidar_odometry_config,
                 "use_initial_pose_from_topic": True,
                 "base_frame_id": "base_link",
                 "lidar_frame_id": "velo_link",
@@ -96,7 +96,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
     ld.add_action(kitti_preprocess_node)
-    ld.add_action(slt_lidar_odometry_node)
+    ld.add_action(lidar_odometry_node)
     ld.add_action(back_end_node)
     ld.add_action(loop_closure_node)
     ld.add_action(rviz2)

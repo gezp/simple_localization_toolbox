@@ -6,7 +6,7 @@
 ros2 launch slt_lidar_mapping mapping.launch.py 
 ```
 
-* 可修改`slt_lidar_odometry`, `back_end`, `loop_closure`三个模块的配置文件(位于`slt_lidar_mapping/config/`中)
+* 可修改`lidar_odometry`, `back_end`, `loop_closure`三个模块的配置文件(位于`slt_lidar_mapping/config/`中)
 
 强制优化
 
@@ -27,7 +27,7 @@ bash save_scan_context.sh
 保存地图
 
 ```bash
-# slt_lidar_odometry/scripts
+# slt_lidar_mapping/scripts
 bash save_map.sh
 ```
 

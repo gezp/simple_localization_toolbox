@@ -24,17 +24,17 @@ set(dependencies
   scan_context
 )
 
-# slt_lidar_locator_node
-add_executable(slt_lidar_locator_node
+# lidar_locator_node
+add_executable(lidar_locator_node
   src/lidar_locator.cpp
   src/lidar_locator_node.cpp
   src/lidar_locator_main.cpp)
 
-ament_target_dependencies(slt_lidar_locator_node ${dependencies})
+ament_target_dependencies(lidar_locator_node ${dependencies})
 
 # install executable
 install(TARGETS
-    slt_lidar_locator_node
+    lidar_locator_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

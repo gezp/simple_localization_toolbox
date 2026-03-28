@@ -27,7 +27,7 @@ bash save_scan_context.sh
 保存地图
 
 ```bash
-# slt_lidar_odometry/scripts
+# slt_lio_mapping/scripts
 bash save_map.sh
 ```
 

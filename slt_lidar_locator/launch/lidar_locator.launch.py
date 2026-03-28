@@ -23,12 +23,12 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_slt_lidar_locator = get_package_share_directory("slt_lidar_locator")
     rviz2_config = os.path.join(
-        pkg_slt_lidar_locator, "launch", "slt_lidar_locator.rviz"
+        pkg_slt_lidar_locator, "launch", "lidar_locator.rviz"
     )
     data_dir = os.path.join(os.environ["HOME"], "localization_data")
     bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
-    slt_lidar_locator_config = os.path.join(
-        pkg_slt_lidar_locator, "config", "slt_lidar_locator.yaml"
+    lidar_locator_config = os.path.join(
+        pkg_slt_lidar_locator, "config", "lidar_locator.yaml"
     )
     rosbag_node = ExecuteProcess(
         name="rosbag",
@@ -42,13 +42,13 @@ def generate_launch_description():
         executable="kitti_preprocess_node",
         output="screen",
     )
-    slt_lidar_locator_node = Node(
-        name="slt_lidar_locator_node",
+    lidar_locator_node = Node(
+        name="lidar_locator_node",
         package="slt_lidar_locator",
-        executable="slt_lidar_locator_node",
+        executable="lidar_locator_node",
         parameters=[
             {
-                "slt_lidar_locator_config": slt_lidar_locator_config,
+                "lidar_locator_config": lidar_locator_config,
                 "undistort_point_cloud": False,
                 "data_path": data_dir,
                 "publish_tf": True,
@@ -82,7 +82,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
     ld.add_action(kitti_preprocess_node)
-    ld.add_action(slt_lidar_locator_node)
+    ld.add_action(lidar_locator_node)
     ld.add_action(simple_evaluator_node)
     ld.add_action(rviz2)
     return ld

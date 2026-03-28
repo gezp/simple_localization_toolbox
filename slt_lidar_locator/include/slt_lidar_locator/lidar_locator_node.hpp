@@ -63,8 +63,8 @@ private:
   bool is_valid_extrinsics_{false};
   bool publish_tf_{false};
   bool undistort_point_cloud_{false};
-  // slt_lidar_locator and process thread
-  std::shared_ptr<LidarLocalization> slt_lidar_locator_;
+  // lidar_locator and process thread
+  std::shared_ptr<LidarLocalization> lidar_locator_;
   std::unique_ptr<std::thread> run_thread_;
   bool exit_{false};
   // data

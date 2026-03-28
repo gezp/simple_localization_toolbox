@@ -30,8 +30,8 @@ def generate_launch_description():
     )
     data_dir = os.path.join(os.environ["HOME"], "localization_data")
     bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
-    slt_lidar_locator_config = os.path.join(
-        pkg_slt_lidar_locator, "config", "slt_lidar_locator.yaml"
+    lidar_locator_config = os.path.join(
+        pkg_slt_lidar_locator, "config", "lidar_locator.yaml"
     )
     sliding_window_config = os.path.join(
         pkg_slt_graph_locator, "config", "sliding_window.yaml"
@@ -49,13 +49,13 @@ def generate_launch_description():
         executable="kitti_preprocess_node",
         output="screen",
     )
-    slt_lidar_locator_node = Node(
-        name="slt_lidar_locator_node",
+    lidar_locator_node = Node(
+        name="lidar_locator_node",
         package="slt_lidar_locator",
-        executable="slt_lidar_locator_node",
+        executable="lidar_locator_node",
         parameters=[
             {
-                "slt_lidar_locator_config": slt_lidar_locator_config,
+                "lidar_locator_config": lidar_locator_config,
                 "data_path": data_dir,
                 "base_frame_id": "base_link",
                 "lidar_frame_id": "velo_link",
@@ -104,7 +104,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
     ld.add_action(kitti_preprocess_node)
-    ld.add_action(slt_lidar_locator_node)
+    ld.add_action(lidar_locator_node)
     ld.add_action(sliding_window_node)
     ld.add_action(simple_evaluator_node)
     ld.add_action(rviz2)

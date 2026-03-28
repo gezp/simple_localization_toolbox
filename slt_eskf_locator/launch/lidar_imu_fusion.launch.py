@@ -31,8 +31,8 @@ def generate_launch_description():
     fusion_config = os.path.join(
         pkg_slt_eskf_locator, "config", "lidar_imu_fusion.yaml"
     )
-    slt_lidar_locator_config = os.path.join(
-        pkg_slt_lidar_locator, "config", "slt_lidar_locator.yaml"
+    lidar_locator_config = os.path.join(
+        pkg_slt_lidar_locator, "config", "lidar_locator.yaml"
     )
     #
     rosbag_node = ExecuteProcess(
@@ -47,13 +47,13 @@ def generate_launch_description():
         executable="kitti_preprocess_node",
         output="screen",
     )
-    slt_lidar_locator_node = Node(
-        name="slt_lidar_locator_node",
+    lidar_locator_node = Node(
+        name="lidar_locator_node",
         package="slt_lidar_locator",
-        executable="slt_lidar_locator_node",
+        executable="lidar_locator_node",
         parameters=[
             {
-                "slt_lidar_locator_config": slt_lidar_locator_config,
+                "lidar_locator_config": lidar_locator_config,
                 "data_path": data_dir,
                 "base_frame_id": "base_link",
                 "lidar_frame_id": "velo_link",
@@ -102,7 +102,7 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
     ld.add_action(kitti_preprocess_node)
-    ld.add_action(slt_lidar_locator_node)
+    ld.add_action(lidar_locator_node)
     ld.add_action(fusion_node)
     ld.add_action(simple_evaluator_node)
     ld.add_action(rviz2)

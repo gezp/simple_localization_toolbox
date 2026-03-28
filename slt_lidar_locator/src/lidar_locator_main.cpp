@@ -18,8 +18,8 @@
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<rclcpp::Node>("slt_lidar_locator_node");
-  auto slt_lidar_locator_node = std::make_shared<slt_lidar_locator::LidarLocalizationNode>(node);
+  auto node = std::make_shared<rclcpp::Node>("lidar_locator_node");
+  auto lidar_locator_node = std::make_shared<slt_lidar_locator::LidarLocalizationNode>(node);
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;

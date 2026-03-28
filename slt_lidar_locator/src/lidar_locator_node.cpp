@@ -24,25 +24,25 @@ namespace slt_lidar_locator
 {
 LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
 {
-  std::string slt_lidar_locator_config;
+  std::string lidar_locator_config;
   std::string data_path;
-  node->declare_parameter("slt_lidar_locator_config", slt_lidar_locator_config);
+  node->declare_parameter("lidar_locator_config", lidar_locator_config);
   node->declare_parameter("data_path", data_path);
   node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->declare_parameter("publish_tf", publish_tf_);
   node->declare_parameter("base_frame_id", base_frame_id_);
   node->declare_parameter("lidar_frame_id", lidar_frame_id_);
-  node->get_parameter("slt_lidar_locator_config", slt_lidar_locator_config);
+  node->get_parameter("lidar_locator_config", lidar_locator_config);
   node->get_parameter("data_path", data_path);
   node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->get_parameter("publish_tf", publish_tf_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
   RCLCPP_INFO(
-    node->get_logger(), "slt_lidar_locator_config: [%s]", slt_lidar_locator_config.c_str());
+    node->get_logger(), "lidar_locator_config: [%s]", lidar_locator_config.c_str());
   RCLCPP_INFO(node->get_logger(), "data_path: [%s]", data_path.c_str());
-  if (slt_lidar_locator_config == "" || (!std::filesystem::exists(slt_lidar_locator_config))) {
-    RCLCPP_FATAL(node->get_logger(), "slt_lidar_locator_config is invalid");
+  if (lidar_locator_config == "" || (!std::filesystem::exists(lidar_locator_config))) {
+    RCLCPP_FATAL(node->get_logger(), "lidar_locator_config is invalid");
     return;
   }
   if (data_path == "" || (!std::filesystem::is_directory(data_path))) {
@@ -57,11 +57,11 @@ LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
     std::make_shared<slt_common::OdometrySubscriber>(node, "synced_gnss/pose", 10000);
   // publisher
   global_map_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "slt_lidar_locator/global_map", "map", 100);
+    node, "lidar_locator/global_map", "map", 100);
   local_map_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "slt_lidar_locator/local_map", "map", 100);
+    node, "lidar_locator/local_map", "map", 100);
   current_scan_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "slt_lidar_locator/current_scan", "map", 100);
+    node, "lidar_locator/current_scan", "map", 100);
   lidar_pose_pub_ = std::make_shared<slt_common::OdometryPublisher>(
     node, "localization/lidar/pose", "map", base_frame_id_, 100);
   tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
@@ -69,8 +69,8 @@ LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
   extrinsics_manager_ = std::make_shared<slt_common::ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
   std::cout << "-----------------Init Lidar Localization-------------------" << std::endl;
-  slt_lidar_locator_ = std::make_shared<LidarLocalization>();
-  slt_lidar_locator_->init_config(slt_lidar_locator_config, data_path);
+  lidar_locator_ = std::make_shared<LidarLocalization>();
+  lidar_locator_->init_config(lidar_locator_config, data_path);
   // process loop flow
   run_thread_ = std::make_unique<std::thread>(
     [this]() {
@@ -96,7 +96,7 @@ bool LidarLocalizationNode::run()
   // for global map visualization
   static bool global_map_published = false;
   if (!global_map_published && global_map_pub_->has_subscribers()) {
-    auto global_map = slt_lidar_locator_->get_global_map();
+    auto global_map = lidar_locator_->get_global_map();
     global_map_pub_->publish(*global_map);
     global_map_published = true;
   }
@@ -105,7 +105,7 @@ bool LidarLocalizationNode::run()
     if (!extrinsics_manager_->lookup(base_frame_id_, lidar_frame_id_, T_base_lidar_)) {
       return false;
     }
-    slt_lidar_locator_->set_extrinsic(T_base_lidar_);
+    lidar_locator_->set_extrinsic(T_base_lidar_);
     is_valid_extrinsics_ = true;
   }
   // read data
@@ -113,13 +113,13 @@ bool LidarLocalizationNode::run()
   // process gnss data
   while (!gnss_data_buffer_.empty()) {
     auto current_gnss_data = gnss_data_buffer_.front();
-    slt_lidar_locator_->add_gnss_data(current_gnss_data);
+    lidar_locator_->add_gnss_data(current_gnss_data);
     gnss_data_buffer_.pop_front();
   }
   // process gnss odometry
   while (!gnss_odom_buffer_.empty()) {
     auto current_gnss_odom = gnss_odom_buffer_.front();
-    slt_lidar_locator_->add_gnss_odom(current_gnss_odom);
+    lidar_locator_->add_gnss_odom(current_gnss_odom);
     gnss_odom_buffer_.pop_front();
   }
   // process lidar data
@@ -129,7 +129,7 @@ bool LidarLocalizationNode::run()
     if (undistort_point_cloud_) {
       slt_common::undistort_point_cloud(current_lidar_data, last_twist_);
     }
-    if (slt_lidar_locator_->update(current_lidar_data)) {
+    if (lidar_locator_->update(current_lidar_data)) {
       publish_data();
     }
     lidar_data_buffer_.pop_front();
@@ -149,7 +149,7 @@ bool LidarLocalizationNode::read_data()
 bool LidarLocalizationNode::publish_data()
 {
   // publish lidar pose
-  auto odom = slt_lidar_locator_->get_current_odom();
+  auto odom = lidar_locator_->get_current_odom();
   lidar_pose_pub_->publish(odom);
   last_twist_ = slt_common::get_twist_from_odom(odom);
   // publish tf
@@ -163,10 +163,10 @@ bool LidarLocalizationNode::publish_data()
   }
   // puslish point cloud
   if (current_scan_pub_->has_subscribers()) {
-    current_scan_pub_->publish(*slt_lidar_locator_->get_current_scan());
+    current_scan_pub_->publish(*lidar_locator_->get_current_scan());
   }
-  if (slt_lidar_locator_->has_new_local_map() && local_map_pub_->has_subscribers()) {
-    local_map_pub_->publish(*slt_lidar_locator_->get_local_map());
+  if (lidar_locator_->has_new_local_map() && local_map_pub_->has_subscribers()) {
+    local_map_pub_->publish(*lidar_locator_->get_local_map());
   }
   return true;
 }
