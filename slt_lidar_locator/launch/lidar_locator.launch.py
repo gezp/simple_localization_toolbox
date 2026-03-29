@@ -21,63 +21,63 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_slt_lidar_locator = get_package_share_directory("slt_lidar_locator")
+    pkg_slt_lidar_locator = get_package_share_directory('slt_lidar_locator')
     rviz2_config = os.path.join(
-        pkg_slt_lidar_locator, "launch", "lidar_locator.rviz"
+        pkg_slt_lidar_locator, 'launch', 'lidar_locator.rviz'
     )
-    data_dir = os.path.join(os.environ["HOME"], "localization_data")
-    bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
+    data_dir = os.path.join(os.environ['HOME'], 'localization_data')
+    bag_path = os.path.join(data_dir, 'kitti_lidar_only_2011_10_03_drive_0027_synced')
     lidar_locator_config = os.path.join(
-        pkg_slt_lidar_locator, "config", "lidar_locator.yaml"
+        pkg_slt_lidar_locator, 'config', 'lidar_locator.yaml'
     )
     rosbag_node = ExecuteProcess(
-        name="rosbag",
-        cmd=["ros2 bag play", bag_path, "-d 3", "--read-ahead-queue-size 1000"],
+        name='rosbag',
+        cmd=['ros2 bag play', bag_path, '-d 3', '--read-ahead-queue-size 1000'],
         shell=True,
-        output="screen",
+        output='screen',
     )
     kitti_preprocess_node = Node(
-        name="kitti_preprocess_node",
-        package="slt_common",
-        executable="kitti_preprocess_node",
-        output="screen",
+        name='kitti_preprocess_node',
+        package='slt_common',
+        executable='kitti_preprocess_node',
+        output='screen',
     )
     lidar_locator_node = Node(
-        name="lidar_locator_node",
-        package="slt_lidar_locator",
-        executable="lidar_locator_node",
+        name='lidar_locator_node',
+        package='slt_lidar_locator',
+        executable='lidar_locator_node',
         parameters=[
             {
-                "lidar_locator_config": lidar_locator_config,
-                "undistort_point_cloud": False,
-                "data_path": data_dir,
-                "publish_tf": True,
-                "base_frame_id": "base_link",
-                "lidar_frame_id": "velo_link",
+                'lidar_locator_config': lidar_locator_config,
+                'undistort_point_cloud': False,
+                'data_path': data_dir,
+                'publish_tf': True,
+                'base_frame_id': 'base_link',
+                'lidar_frame_id': 'velo_link',
             }
         ],
-        output="screen",
+        output='screen',
     )
     simple_evaluator_node = Node(
-        name="simple_evaluator_node",
-        package="slt_common",
-        executable="simple_evaluator_node",
+        name='simple_evaluator_node',
+        package='slt_common',
+        executable='simple_evaluator_node',
         parameters=[
             {
-                "trajectory_path": data_dir + "/trajectory",
-                "odom_names": ["ground_truth", "lidar_pose"],
-                "odom_topics": ["synced_gnss/pose", "localization/lidar/pose"],
-                "reference_odom_name": "ground_truth",
+                'trajectory_path': data_dir + '/trajectory',
+                'odom_names': ['ground_truth', 'lidar_pose'],
+                'odom_topics': ['synced_gnss/pose', 'localization/lidar/pose'],
+                'reference_odom_name': 'ground_truth',
             }
         ],
-        output="screen",
+        output='screen',
     )
     rviz2 = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=["-d", rviz2_config],
-        output="screen",
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz2_config],
+        output='screen',
     )
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
