@@ -179,7 +179,8 @@ bool LioBackEnd::init_graph_optimizer(const YAML::Node & config_node)
 {
   std::string graph_optimizer_method = config_node["graph_optimizer_method"].as<std::string>();
   if (graph_optimizer_method == "g2o") {
-    auto g2o_optimizer = std::make_shared<G2oGraphOptimizerPRVAG>(config_node[graph_optimizer_method]);
+    auto g2o_optimizer = std::make_shared<G2oGraphOptimizerPRVAG>(
+      config_node[graph_optimizer_method]);
     Eigen::Vector3d gravity = Eigen::Vector3d(0.0, 0.0, -gravity_magnitude_);
     g2o_optimizer->set_gravity(gravity);
     graph_optimizer_ = g2o_optimizer;
