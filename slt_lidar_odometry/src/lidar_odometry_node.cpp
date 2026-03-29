@@ -24,7 +24,6 @@ namespace slt_lidar_odometry
 {
 
 using OdometryMethod = LidarOdometryNode::OdometryMethod;
-using LidarMsgData = slt_common::CloudSubscriber::MsgData;
 
 LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
 {
@@ -191,10 +190,10 @@ void LidarOdometryNode::set_extrinsics_for_odometry(
   }
 }
 
-bool LidarOdometryNode::update_odometry(OdometryMethod method, const LidarMsgData & msg_data)
+bool LidarOdometryNode::update_odometry(
+  OdometryMethod method, slt_common::LidarData & lidar_data)
 {
   elapsed_time_statistics_.tic("update_odometry");
-  auto lidar_data = cloud_sub_->to_lidar_data<slt_common::PointXYZIRT>(msg_data);
   // undistort point cloud
   if (undistort_point_cloud_) {
     slt_common::undistort_point_cloud(lidar_data, last_twist_);

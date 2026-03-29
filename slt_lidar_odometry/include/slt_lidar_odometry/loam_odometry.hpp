@@ -45,7 +45,7 @@ class LoamOdometry
 public:
   explicit LoamOdometry(const YAML::Node & config);
   void set_extrinsic(const Eigen::Matrix4d & T_base_lidar);
-  bool update(const slt_common::LidarData<slt_common::PointXYZIRT> & lidar_data);
+  bool update(const slt_common::LidarData & lidar_data);
   slt_common::OdomData get_current_odom();
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_current_scan();
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr get_feature_scan();

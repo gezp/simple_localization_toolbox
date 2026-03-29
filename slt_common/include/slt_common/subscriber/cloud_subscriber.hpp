@@ -14,10 +14,6 @@
 
 #pragma once
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-
 #include <deque>
 #include <mutex>
 #include <string>
@@ -32,42 +28,17 @@ namespace slt_common
 class CloudSubscriber
 {
 public:
-  struct MsgData
-  {
-    double time;
-    sensor_msgs::msg::PointCloud2::SharedPtr msg;
-  };
   CloudSubscriber(rclcpp::Node::SharedPtr node, std::string topic_name, size_t buffer_size);
 
-  void parse_data(std::deque<MsgData> & output);
-
-  template<typename PointT>
-  LidarData<PointT> to_lidar_data(const MsgData & msg_data)
-  {
-    LidarData<PointT> lidar_data;
-    lidar_data.time = msg_data.time;
-    lidar_data.point_cloud.reset(new pcl::PointCloud<PointT>());
-    pcl::fromROSMsg(*msg_data.msg, *(lidar_data.point_cloud));
-    return lidar_data;
-  }
-
-  template<typename PointT>
-  void parse_data(std::deque<LidarData<PointT>> & output)
-  {
-    buffer_mutex_.lock();
-    if (buffer_.size() > 0) {
-      for (auto & msg_data : buffer_) {
-        output.push_back(to_lidar_data<PointT>(msg_data));
-      }
-      buffer_.clear();
-    }
-    buffer_mutex_.unlock();
-  }
+  void parse_data(std::deque<LidarData> & output);
 
 private:
+  static bool has_field(
+    const sensor_msgs::msg::PointCloud2::SharedPtr & msg, const std::string & field_name);
+
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr subscriber_;
-  std::deque<MsgData> buffer_;
+  std::deque<LidarData> buffer_;
   std::mutex buffer_mutex_;
 };
 }  // namespace slt_common

@@ -17,6 +17,24 @@
 namespace slt_common
 {
 
+struct PointXYZIT
+{
+  PCL_ADD_POINT4D;
+  float intensity;
+  double time;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+} EIGEN_ALIGN16;
+
+}  // namespace slt_common
+
+POINT_CLOUD_REGISTER_POINT_STRUCT(
+  slt_common::PointXYZIT,
+  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(
+    double, time, time))
+
+namespace slt_common
+{
+
 CloudPublisher::CloudPublisher(
   rclcpp::Node::SharedPtr node, std::string topic_name, std::string frame_id, size_t buffer_size)
 : node_(node), frame_id_(frame_id)
@@ -27,6 +45,25 @@ CloudPublisher::CloudPublisher(
 bool CloudPublisher::has_subscribers()
 {
   return publisher_->get_subscription_count() > 0;
+}
+
+void CloudPublisher::publish(const LidarData & lidar_data)
+{
+  if (!lidar_data.has_intensity) {
+    pcl::PointCloud<pcl::PointXYZ> cloud;
+    pcl::copyPointCloud(*lidar_data.point_cloud, cloud);
+    publish(cloud, lidar_data.time);
+  } else if (!lidar_data.has_time) {
+    pcl::PointCloud<pcl::PointXYZI> cloud;
+    pcl::copyPointCloud(*lidar_data.point_cloud, cloud);
+    publish(cloud, lidar_data.time);
+  } else if (!lidar_data.has_ring) {
+    pcl::PointCloud<PointXYZIT> cloud;
+    pcl::copyPointCloud(*lidar_data.point_cloud, cloud);
+    publish(cloud, lidar_data.time);
+  } else {
+    publish(*lidar_data.point_cloud, lidar_data.time);
+  }
 }
 
 }  // namespace slt_common

@@ -29,12 +29,15 @@ struct PointXYZIRT
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
 
-template<typename PointT>
 struct LidarData
 {
   // measurement time
   double time = 0.0;
-  typename pcl::PointCloud<PointT>::Ptr point_cloud = nullptr;
+  pcl::PointCloud<PointXYZIRT>::Ptr point_cloud = nullptr;
+  // field validity flags
+  bool has_intensity = false;
+  bool has_ring = false;
+  bool has_time = false;
 };
 
 }  // namespace slt_common

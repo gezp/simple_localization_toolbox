@@ -43,7 +43,7 @@ public:
   void set_extrinsic(const Eigen::Matrix4d & T_base_lidar);
   bool add_gnss_data(const slt_common::GnssData & gnss_data);
   bool add_gnss_odom(const slt_common::OdomData & gnss_odom);
-  bool update(const slt_common::LidarData<slt_common::PointXYZIRT> & lidar_data);
+  bool update(const slt_common::LidarData & lidar_data);
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_current_scan();
   slt_common::OdomData get_current_odom();
   pcl::PointCloud<pcl::PointXYZ>::Ptr get_global_map();
@@ -96,7 +96,8 @@ private:
   bool has_new_local_map_ = false;
   pcl::PointCloud<pcl::PointXYZ>::Ptr global_map_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr local_map_;
-  slt_common::LidarData<pcl::PointXYZ> current_lidar_data_;
+  double current_lidar_time_ = 0.0;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr current_cloud_;
   slt_common::LidarFrame current_lidar_frame_;
   std::deque<slt_common::LidarFrame> history_frames_;
   std::deque<slt_common::GnssData> gnss_data_buffer_;

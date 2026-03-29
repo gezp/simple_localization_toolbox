@@ -84,13 +84,13 @@ private:
   std::unique_ptr<std::thread> run_thread_;
   bool exit_{false};
   // data
-  std::deque<slt_common::LidarData<pcl::PointXYZ>> lidar_data_buff_;
+  std::deque<slt_common::LidarData> lidar_data_buff_;
   std::deque<slt_common::OdomData> gnss_pose_data_buff_;
   std::deque<slt_common::OdomData> lidar_odom_data_buff_;
   std::deque<slt_common::LoopCandidate> loop_candidate_data_buff_;
   std::deque<slt_common::ImuData> imu_raw_data_buff_;
 
-  slt_common::LidarData<pcl::PointXYZ> current_lidar_data_;
+  slt_common::LidarData current_lidar_data_;
   slt_common::OdomData current_lidar_odom_data_;
 };
 }  // namespace slt_lidar_mapping

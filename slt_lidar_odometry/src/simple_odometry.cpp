@@ -51,7 +51,7 @@ void SimpleOdometry::set_extrinsic(const Eigen::Matrix4d & T_base_lidar)
 
 
 bool SimpleOdometry::update(
-  const slt_common::LidarData<slt_common::PointXYZIRT> & lidar_data)
+  const slt_common::LidarData & lidar_data)
 {
   has_new_local_map_ = false;
   current_frame_.time = lidar_data.time;

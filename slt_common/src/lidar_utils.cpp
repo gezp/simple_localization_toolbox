@@ -52,18 +52,14 @@ Eigen::Matrix4d integrate_twist(const TwistData & twist_data, double dt, bool us
   return T;
 }
 
-bool convert_velodyne64(
-  const LidarData<pcl::PointXYZI> & data1, LidarData<PointXYZIRT> & data2, double dt,
-  bool is_clockwise)
+bool convert_velodyne64(LidarData & lidar_data, double dt, bool is_clockwise)
 {
   int num_scans = 64;
-  data2.time = data1.time;
-  data2.point_cloud.reset(new pcl::PointCloud<PointXYZIRT>());
-  data2.point_cloud->points.resize(data1.point_cloud->points.size());
-  // copy point cloud
+  auto & cloud = lidar_data.point_cloud;
+  // filter and assign ring id in-place
   size_t cnt = 0;
-  for (size_t i = 0; i < data1.point_cloud->points.size(); i++) {
-    auto & p = data1.point_cloud->points[i];
+  for (size_t i = 0; i < cloud->points.size(); i++) {
+    auto & p = cloud->points[i];
     // calculate ring id for each point
     float angle = 180.0f / M_PI * atan(p.z / hypot(p.x, p.y));
     int laser_id = 0;
@@ -72,7 +68,7 @@ bool convert_velodyne64(
     } else {
       laser_id = num_scans / 2 + static_cast<int>((-8.83 - angle) * 2.0 + 0.5);
     }
-    // skip outlies, only use [0, 50]
+    // skip outliers, only use [0, 50]
     if (angle > 2 || angle < -24.33 || laser_id > 50 || laser_id < 0) {
       continue;
     }
@@ -80,29 +76,24 @@ bool convert_velodyne64(
     if (p.getVector3fMap().norm() < 2.0) {
       continue;
     }
-    // copy point
-    PointXYZIRT dst;
-    dst.x = p.x;
-    dst.y = p.y;
-    dst.z = p.z;
-    dst.intensity = p.intensity;
-    dst.ring = laser_id;
-    dst.time = 0;
-    data2.point_cloud->points[cnt] = dst;
+    // keep point with calculated ring
+    p.ring = laser_id;
+    p.time = 0;
+    cloud->points[cnt] = p;
     cnt++;
   }
-  data2.point_cloud->points.resize(cnt);
+  cloud->points.resize(cnt);
   // calculate time for each point
   std::vector<bool> is_first(num_scans, true);
   std::vector<double> yaw_first(num_scans, 0.0);  // yaw of first scan point
-  for (size_t i = 0; i < data2.point_cloud->points.size(); i++) {
-    auto & p = data2.point_cloud->points[i];
+  for (size_t i = 0; i < cloud->points.size(); i++) {
+    auto & p = cloud->points[i];
     int laser_id = p.ring;
     double yaw_angle = atan2(p.y, p.x);
     if (is_first[laser_id]) {
       yaw_first[laser_id] = yaw_angle;
       is_first[laser_id] = false;
-      p.time = data2.time;
+      p.time = lidar_data.time;
       continue;
     }
     double yaw_offset = yaw_angle - yaw_first[laser_id];
@@ -113,12 +104,14 @@ bool convert_velodyne64(
       yaw_offset = yaw_offset + 2 * M_PI;
     }
     assert(yaw_offset >= 0 && yaw_offset <= 2 * M_PI);
-    p.time = data2.time + yaw_offset / (2 * M_PI) * dt;
+    p.time = lidar_data.time + yaw_offset / (2 * M_PI) * dt;
   }
+  lidar_data.has_ring = true;
+  lidar_data.has_time = true;
   return true;
 }
 
-bool undistort_point_cloud(LidarData<PointXYZIRT> & lidar_data, const TwistData & twist_data)
+bool undistort_point_cloud(LidarData & lidar_data, const TwistData & twist_data)
 {
   for (size_t i = 0; i < lidar_data.point_cloud->points.size(); i++) {
     auto & p = lidar_data.point_cloud->points[i];

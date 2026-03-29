@@ -21,9 +21,8 @@ namespace slt_common
 {
 
 bool convert_velodyne64(
-  const LidarData<pcl::PointXYZI> & point1, LidarData<PointXYZIRT> & point2, double dt = 0.1,
-  bool is_clockwise = false);
+  LidarData & lidar_data, double dt = 0.1, bool is_clockwise = false);
 
-bool undistort_point_cloud(LidarData<PointXYZIRT> & lidar_data, const TwistData & twist_data);
+bool undistort_point_cloud(LidarData & lidar_data, const TwistData & twist_data);
 
 }  // namespace slt_common

@@ -56,7 +56,7 @@ public:
   bool add_gnss_odom(const slt_common::OdomData & gnss_odom);
   bool add_loop_candidate(const slt_common::LoopCandidate & loop_candidate);
   bool update(
-    const slt_common::LidarData<pcl::PointXYZ> & lidar_data,
+    const slt_common::LidarData & lidar_data,
     const slt_common::OdomData & lidar_odom);
   bool optimize(bool force = true);
   bool has_new_key_frame();

@@ -14,10 +14,10 @@
 
 #include "slt_common/subscriber/cloud_subscriber.hpp"
 
+#include <pcl_conversions/pcl_conversions.h>
+
 namespace slt_common
 {
-
-using MsgData = CloudSubscriber::MsgData;
 
 CloudSubscriber::CloudSubscriber(
   rclcpp::Node::SharedPtr node, std::string topic_name, size_t buffer_size)
@@ -30,9 +30,13 @@ CloudSubscriber::CloudSubscriber(
           msg->fields[i].name = "intensity";
         }
       }
-      MsgData data;
+      LidarData data;
       data.time = rclcpp::Time(msg->header.stamp).seconds();
-      data.msg = msg;
+      data.point_cloud.reset(new pcl::PointCloud<PointXYZIRT>());
+      pcl::fromROSMsg(*msg, *(data.point_cloud));
+      data.has_intensity = has_field(msg, "intensity");
+      data.has_ring = has_field(msg, "ring");
+      data.has_time = has_field(msg, "time");
       buffer_mutex_.lock();
       buffer_.push_back(data);
       buffer_mutex_.unlock();
@@ -41,7 +45,7 @@ CloudSubscriber::CloudSubscriber(
     topic_name, buffer_size, msg_callback);
 }
 
-void CloudSubscriber::parse_data(std::deque<MsgData> & output)
+void CloudSubscriber::parse_data(std::deque<LidarData> & output)
 {
   buffer_mutex_.lock();
   if (buffer_.size() > 0) {
@@ -49,6 +53,17 @@ void CloudSubscriber::parse_data(std::deque<MsgData> & output)
     buffer_.clear();
   }
   buffer_mutex_.unlock();
+}
+
+bool CloudSubscriber::has_field(
+  const sensor_msgs::msg::PointCloud2::SharedPtr & msg, const std::string & field_name)
+{
+  for (size_t i = 0; i < msg->fields.size(); i++) {
+    if (msg->fields[i].name == field_name) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace slt_common

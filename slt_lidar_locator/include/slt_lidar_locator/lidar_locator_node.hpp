@@ -68,7 +68,7 @@ private:
   std::unique_ptr<std::thread> run_thread_;
   bool exit_{false};
   // data
-  std::deque<slt_common::LidarData<slt_common::PointXYZIRT>> lidar_data_buffer_;
+  std::deque<slt_common::LidarData> lidar_data_buffer_;
   std::deque<slt_common::GnssData> gnss_data_buffer_;
   std::deque<slt_common::OdomData> gnss_odom_buffer_;
   slt_common::TwistData last_twist_;

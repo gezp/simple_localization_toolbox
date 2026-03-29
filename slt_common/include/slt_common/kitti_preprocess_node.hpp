@@ -76,7 +76,7 @@ private:
   bool use_manual_map_origin_{true};
   std::vector<double> map_origin_{48.982545, 8.390366, 116.382141};
   // data
-  std::deque<LidarData<pcl::PointXYZI>> lidar_data_buffer_;
+  std::deque<LidarData> lidar_data_buffer_;
   std::deque<ImuData2> imu_data_buffer_;
   std::deque<TwistData> twist_data_buffer_;
   std::deque<GnssData> gnss_data_buffer_;

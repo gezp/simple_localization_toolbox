@@ -128,10 +128,9 @@ bool KittiPreprocessNode::run()
       break;
     }
     // convert lidar data
-    LidarData<PointXYZIRT> current_lidar_data;
-    convert_velodyne64(lidar_data, current_lidar_data, 0.1, false);
+    convert_velodyne64(lidar_data, 0.1, false);
     // publish lidar point cloud
-    cloud_pub_->publish(current_lidar_data);
+    cloud_pub_->publish(lidar_data);
     // update buffer
     lidar_data_buffer_.pop_front();
     valid_data = true;

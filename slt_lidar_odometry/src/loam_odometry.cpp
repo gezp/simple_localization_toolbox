@@ -43,7 +43,7 @@ void LoamOdometry::set_extrinsic(const Eigen::Matrix4d & T_base_lidar)
 }
 
 bool LoamOdometry::update(
-  const slt_common::LidarData<slt_common::PointXYZIRT> & lidar_data)
+  const slt_common::LidarData & lidar_data)
 {
   elapsed_time_statistics_.tic("update");
   current_frame_.time = lidar_data.time;

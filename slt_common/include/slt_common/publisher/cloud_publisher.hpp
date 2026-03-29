@@ -59,11 +59,7 @@ public:
     publish(cloud, node_->get_clock()->now());
   }
 
-  template<typename PointT>
-  void publish(const LidarData<PointT> & lidar_data)
-  {
-    publish(*lidar_data.point_cloud, lidar_data.time);
-  }
+  void publish(const LidarData & lidar_data);
 
   bool has_subscribers();
 

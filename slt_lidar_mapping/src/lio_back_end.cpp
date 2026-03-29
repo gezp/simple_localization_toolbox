@@ -14,6 +14,9 @@
 
 #include "slt_lidar_mapping/lio_back_end.hpp"
 
+#include <pcl/common/transforms.h>
+#include <pcl/common/io.h>
+
 #include <filesystem>
 
 #include "slt_common/sensor_data_utils.hpp"
@@ -93,7 +96,7 @@ bool LioBackEnd::add_loop_candidate(const slt_common::LoopCandidate & loop_candi
 }
 
 bool LioBackEnd::update(
-  const slt_common::LidarData<pcl::PointXYZ> & lidar_data,
+  const slt_common::LidarData & lidar_data,
   const slt_common::OdomData & lidar_odom)
 {
   has_new_key_frame_ = false;
@@ -103,7 +106,9 @@ bool LioBackEnd::update(
     has_new_key_frame_ = true;
     // add new key_frame
     Eigen::Matrix4d pose = T_map_odom_ * lidar_odom.pose * T_base_lidar_;
-    key_frame_manager_->add_key_frame(lidar_odom.time, pose, lidar_data.point_cloud);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*lidar_data.point_cloud, *cloud_xyz);
+    key_frame_manager_->add_key_frame(lidar_odom.time, pose, cloud_xyz);
     new_key_frame_cnt_++;
     // add node
     add_node_and_edge();

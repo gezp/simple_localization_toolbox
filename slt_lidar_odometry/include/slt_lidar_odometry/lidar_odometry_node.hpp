@@ -38,8 +38,6 @@ namespace slt_lidar_odometry
 
 class LidarOdometryNode
 {
-  using LidarMsgData = slt_common::CloudSubscriber::MsgData;
-
 public:
   enum OdometryMethod { Simple, Loam, Unknown };
   explicit LidarOdometryNode(rclcpp::Node::SharedPtr node);
@@ -50,7 +48,7 @@ private:
   bool get_initial_pose_by_reference_odom(
     double time, Eigen::Matrix4d & initial_pose, bool & is_old_data);
   void set_extrinsics_for_odometry(OdometryMethod method, const Eigen::Matrix4d & T_base_lidar);
-  bool update_odometry(OdometryMethod method, const LidarMsgData & msg_data);
+  bool update_odometry(OdometryMethod method, slt_common::LidarData & lidar_data);
   slt_common::OdomData align_odom_to_map(const slt_common::OdomData & odom);
   void publish_odom(const slt_common::OdomData & odom);
   void publish_data(OdometryMethod method);
@@ -80,7 +78,7 @@ private:
   std::unique_ptr<std::thread> run_thread_;
   bool exit_{false};
   // data
-  std::deque<LidarMsgData> lidar_data_buffer_;
+  std::deque<slt_common::LidarData> lidar_data_buffer_;
   std::shared_ptr<slt_common::OdomDataBuffer> ref_odom_buffer_;
   slt_common::TwistData last_twist_;
   // params
