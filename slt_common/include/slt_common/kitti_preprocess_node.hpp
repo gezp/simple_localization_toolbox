@@ -77,11 +77,11 @@ private:
   std::vector<double> map_origin_{48.982545, 8.390366, 116.382141};
   // data
   std::deque<LidarData> lidar_data_buffer_;
-  std::deque<ImuData2> imu_data_buffer_;
+  std::deque<ImuData> imu_data_buffer_;
   std::deque<TwistData> twist_data_buffer_;
   std::deque<GnssData> gnss_data_buffer_;
 
-  ImuData2 current_imu_data_;
+  ImuData current_imu_data_;
   TwistData current_twist_data_;
   GnssData current_gnss_data_;
   std::shared_ptr<OdomDataBuffer> gnss_odom_buffer_;

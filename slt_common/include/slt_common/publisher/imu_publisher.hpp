@@ -31,7 +31,7 @@ public:
     rclcpp::Node::SharedPtr node, std::string topic_name, std::string frame_id, size_t buff_size);
 
   void publish(const ImuData & imu_data);
-  bool has_subscribers(void);
+  bool has_subscribers();
 
 private:
   rclcpp::Node::SharedPtr node_;

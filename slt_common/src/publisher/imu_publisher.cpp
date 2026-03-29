@@ -41,6 +41,20 @@ void ImuPublisher::publish(const ImuData & imu_data)
   imu_.linear_acceleration.y = imu_data.linear_acceleration.y();
   imu_.linear_acceleration.z = imu_data.linear_acceleration.z();
 
+  // set orientation:
+  if (imu_data.has_orientation) {
+    imu_.orientation.w = imu_data.orientation.w();
+    imu_.orientation.x = imu_data.orientation.x();
+    imu_.orientation.y = imu_data.orientation.y();
+    imu_.orientation.z = imu_data.orientation.z();
+  } else {
+    imu_.orientation.w = 0.0;
+    imu_.orientation.x = 0.0;
+    imu_.orientation.y = 0.0;
+    imu_.orientation.z = 0.0;
+    imu_.orientation_covariance[0] = -1.0;
+  }
+
   publisher_->publish(imu_);
 }
 

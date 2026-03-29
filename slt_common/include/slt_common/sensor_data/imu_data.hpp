@@ -23,15 +23,9 @@ struct ImuData
   double time = 0.0;
   Eigen::Vector3d linear_acceleration;
   Eigen::Vector3d angular_velocity;
-};
-
-// only used by INS data
-struct ImuData2
-{
-  double time = 0.0;
-  Eigen::Vector3d linear_acceleration;
-  Eigen::Vector3d angular_velocity;
   Eigen::Quaterniond orientation;
+  // field validity flags
+  bool has_orientation = false;
 };
 
 }  // namespace slt_common

@@ -29,7 +29,6 @@ public:
   ImuSubscriber(rclcpp::Node::SharedPtr node, std::string topic_name, size_t buff_size);
   ImuSubscriber() = default;
   void parse_data(std::deque<ImuData> & output);
-  void parse_data(std::deque<ImuData2> & output);
 
 private:
   void msg_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg_ptr);
@@ -38,7 +37,7 @@ private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr subscriber_;
 
-  std::deque<ImuData2> data_buffer_;
+  std::deque<ImuData> data_buffer_;
   std::mutex buffer_mutex_;
 };
 }  // namespace slt_common

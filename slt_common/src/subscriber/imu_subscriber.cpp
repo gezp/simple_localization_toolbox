@@ -16,6 +16,7 @@
 
 namespace slt_common
 {
+
 ImuSubscriber::ImuSubscriber(rclcpp::Node::SharedPtr node, std::string topic_name, size_t buff_size)
 : node_(node)
 {
@@ -25,7 +26,7 @@ ImuSubscriber::ImuSubscriber(rclcpp::Node::SharedPtr node, std::string topic_nam
 
 void ImuSubscriber::msg_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg_ptr)
 {
-  ImuData2 data;
+  ImuData data;
   data.time = rclcpp::Time(imu_msg_ptr->header.stamp).seconds();
 
   data.linear_acceleration[0] = imu_msg_ptr->linear_acceleration.x;
@@ -36,8 +37,15 @@ void ImuSubscriber::msg_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg_
   data.angular_velocity[1] = imu_msg_ptr->angular_velocity.y;
   data.angular_velocity[2] = imu_msg_ptr->angular_velocity.z;
 
+  // check if orientation is provided and valid:
+  // per ROS2 IMU msg spec, orientation_covariance[0] == -1 means no orientation estimate
+  // quaternion norm should be 1.0 for a valid orientation
   auto & q = imu_msg_ptr->orientation;
-  data.orientation = Eigen::Quaterniond(q.w, q.x, q.y, q.z);
+  double q_norm = std::sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+  data.has_orientation = (imu_msg_ptr->orientation_covariance[0] > -0.1) && (q_norm > 0);
+  if (data.has_orientation) {
+    data.orientation = Eigen::Quaterniond(q.w, q.x, q.y, q.z);
+  }
 
   buffer_mutex_.lock();
   data_buffer_.push_back(data);
@@ -45,22 +53,6 @@ void ImuSubscriber::msg_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg_
 }
 
 void ImuSubscriber::parse_data(std::deque<ImuData> & output)
-{
-  buffer_mutex_.lock();
-  if (data_buffer_.size() > 0) {
-    for (auto & data : data_buffer_) {
-      ImuData imu_data;
-      imu_data.time = data.time;
-      imu_data.linear_acceleration = data.linear_acceleration;
-      imu_data.angular_velocity = data.angular_velocity;
-      output.push_back(imu_data);
-    }
-    data_buffer_.clear();
-  }
-  buffer_mutex_.unlock();
-}
-
-void ImuSubscriber::parse_data(std::deque<ImuData2> & output)
 {
   buffer_mutex_.lock();
   if (data_buffer_.size() > 0) {
