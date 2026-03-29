@@ -1,14 +1,14 @@
 name: Build and Test
 on:
   push:
-    branches: [ humble ]
+    branches: [ jazzy ]
   pull_request:
-    branches: [ humble ]
+    branches: [ jazzy ]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-jammy-ros-humble-desktop-latest
+      image: rostooling/setup-ros-docker:ubuntu-noble-ros-jazzy-desktop-latest
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -22,7 +22,7 @@ jobs:
       - name: Build simple_localization_toolbox
         uses: ros-tooling/action-ros-ci@v0.3
         with:
-          target-ros2-distro: humble
+          target-ros2-distro: jazzy
           skip-tests: true
       - name: Test slt_interface
         run: |

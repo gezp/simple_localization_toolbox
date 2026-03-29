@@ -72,14 +72,15 @@ bool LoamRegistration::match(const LoamFeature & input, const Eigen::Matrix4d & 
   // optimize
   for (int i = 0; i < num_optimization_; i++) {
     ceres::Problem problem;
-    ceres::LocalParameterization * q_parameterization;
+    ceres::Manifold * q_manifold;
     if (use_analytic_derivatives_) {
-      q_parameterization = new SO3Parameterization();
+      q_manifold = new SO3Manifold();
     } else {
-      q_parameterization = new ceres::EigenQuaternionParameterization();
+      q_manifold = new ceres::EigenQuaternionManifold();
     }
-    problem.AddParameterBlock(ceres_parameter_, 4, q_parameterization);
+    problem.AddParameterBlock(ceres_parameter_, 4);
     problem.AddParameterBlock(ceres_parameter_ + 4, 3);
+    problem.SetManifold(ceres_parameter_, q_manifold);
     ceres::LossFunction * loss_function = new ceres::HuberLoss(ceres_loss_);
     // find correspondence for edge features
     elapsed_time_statistics_.tic("find edge correspondence");

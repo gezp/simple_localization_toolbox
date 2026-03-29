@@ -20,7 +20,7 @@
 #include "slt_graph_locator/graph_optimizer/ceres/relative_pose_factor.hpp"
 #include "slt_graph_locator/graph_optimizer/ceres/imu_pre_integration_factor.hpp"
 #include "slt_graph_locator/graph_optimizer/ceres/marginalization_factor.hpp"
-#include "slt_graph_locator/graph_optimizer/ceres/prvag_local_parameterization.hpp"
+#include "slt_graph_locator/graph_optimizer/ceres/prvag_manifold.hpp"
 
 namespace slt_graph_locator
 {
@@ -159,8 +159,9 @@ bool CeresGraphOptimizer::optimize()
   // add parameter blocks:
   for (size_t i = keep_idx_; i < vertices_.size(); ++i) {
     auto & v = vertices_.at(i);
-    ceres::LocalParameterization * local_parameterization = new PrvagLocalParameterization();
-    problem.AddParameterBlock(v.state, 15, local_parameterization);
+    ceres::Manifold * local_manifold = new PrvagManifold();
+    problem.AddParameterBlock(v.state, 15);
+    problem.SetManifold(v.state, local_manifold);
     if (v.fixed) {
       problem.SetParameterBlockConstant(v.state);
     }
