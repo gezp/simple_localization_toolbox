@@ -14,6 +14,7 @@
 
 #include "slt_common/subscriber/cloud_subscriber.hpp"
 
+#include <pcl/console/print.h>
 #include <pcl_conversions/pcl_conversions.h>
 
 #include "slt_common/lidar_utils.hpp"
@@ -35,7 +36,10 @@ CloudSubscriber::CloudSubscriber(
       LidarData data;
       data.time = rclcpp::Time(msg->header.stamp).seconds();
       data.point_cloud.reset(new pcl::PointCloud<PointXYZIRT>());
+      auto prev_level = pcl::console::getVerbosityLevel();
+      pcl::console::setVerbosityLevel(pcl::console::L_ALWAYS);
       pcl::fromROSMsg(*msg, *(data.point_cloud));
+      pcl::console::setVerbosityLevel(prev_level);
       remove_nan_from_pointcloud(data);
       data.has_intensity = has_field(msg, "intensity");
       data.has_ring = has_field(msg, "ring");
