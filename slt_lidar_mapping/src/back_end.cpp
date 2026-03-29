@@ -14,10 +14,6 @@
 
 #include "slt_lidar_mapping/back_end.hpp"
 
-#include <pcl/common/transforms.h>
-#include <pcl/common/io.h>
-
-#include "slt_common/sensor_data_utils.hpp"
 #include "slt_common/lidar_utils.hpp"
 
 namespace slt_lidar_mapping
