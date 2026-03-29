@@ -21,7 +21,7 @@
 namespace slt_common
 {
 
-class SO3Parameterization : public ceres::LocalParameterization
+class SO3Manifold : public ceres::Manifold
 {
 public:
   virtual bool Plus(const double * x, const double * delta, double * x_plus_delta) const
@@ -33,15 +33,31 @@ public:
     q_plus_delta = (delta_q * q).normalized();
     return true;
   }
-  virtual bool ComputeJacobian(const double * /*x*/, double * jacobian) const
+  virtual bool PlusJacobian(const double * /*x*/, double * jacobian) const
   {
     Eigen::Map<Eigen::Matrix<double, 4, 3, Eigen::RowMajor>> j(jacobian);
     (j.topRows(3)).setIdentity();
     (j.bottomRows(1)).setZero();
     return true;
   }
-  virtual int GlobalSize() const {return 4;}
-  virtual int LocalSize() const {return 3;}
+  virtual int AmbientSize() const {return 4;}
+  virtual int TangentSize() const {return 3;}
+
+  virtual bool Minus(const double * y, const double * x, double * y_minus_x) const
+  {
+    Eigen::Map<const Eigen::Quaterniond> q_y(y);
+    Eigen::Map<const Eigen::Quaterniond> q_x(x);
+    Eigen::Map<Eigen::Vector3d> delta(y_minus_x);
+    delta = (Sophus::SO3d(q_y) * Sophus::SO3d(q_x).inverse()).log();
+    return true;
+  }
+
+  virtual bool MinusJacobian(const double * x, double * jacobian) const
+  {
+    Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> J(jacobian);
+    J.setIdentity();
+    return true;
+  }
 };
 
 struct EdgeFactor

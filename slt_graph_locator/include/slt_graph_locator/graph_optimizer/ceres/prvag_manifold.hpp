@@ -24,7 +24,7 @@
 namespace slt_graph_locator
 {
 
-class PrvagLocalParameterization : public ceres::LocalParameterization
+class PrvagManifold : public ceres::Manifold
 {
 public:
   static const int INDEX_P = 0;
@@ -63,16 +63,52 @@ public:
     return true;
   }
 
-  virtual bool ComputeJacobian(const double * /*x*/, double * jacobian) const
+  virtual bool PlusJacobian(const double * /*x*/, double * jacobian) const
   {
     Eigen::Map<Eigen::Matrix<double, 15, 15, Eigen::RowMajor>> J(jacobian);
     J.setIdentity();
     return true;
   }
 
-  virtual int GlobalSize() const {return 15;}
+  virtual int AmbientSize() const {return 15;}
 
-  virtual int LocalSize() const {return 15;}
+  virtual int TangentSize() const {return 15;}
+
+  virtual bool Minus(const double * y, const double * x, double * y_minus_x) const
+  {
+    Eigen::Map<const Eigen::Vector3d> pos_y(y + INDEX_P);
+    Eigen::Map<const Eigen::Vector3d> ori_y(y + INDEX_R);
+    Eigen::Map<const Eigen::Vector3d> vel_y(y + INDEX_V);
+    Eigen::Map<const Eigen::Vector3d> ba_y(y + INDEX_A);
+    Eigen::Map<const Eigen::Vector3d> bg_y(y + INDEX_G);
+
+    Eigen::Map<const Eigen::Vector3d> pos_x(x + INDEX_P);
+    Eigen::Map<const Eigen::Vector3d> ori_x(x + INDEX_R);
+    Eigen::Map<const Eigen::Vector3d> vel_x(x + INDEX_V);
+    Eigen::Map<const Eigen::Vector3d> ba_x(x + INDEX_A);
+    Eigen::Map<const Eigen::Vector3d> bg_x(x + INDEX_G);
+
+    Eigen::Map<Eigen::Vector3d> d_pos(y_minus_x + INDEX_P);
+    Eigen::Map<Eigen::Vector3d> d_ori(y_minus_x + INDEX_R);
+    Eigen::Map<Eigen::Vector3d> d_vel(y_minus_x + INDEX_V);
+    Eigen::Map<Eigen::Vector3d> d_ba(y_minus_x + INDEX_A);
+    Eigen::Map<Eigen::Vector3d> d_bg(y_minus_x + INDEX_G);
+
+    d_pos = pos_y - pos_x;
+    d_ori = (Sophus::SO3d::exp(ori_y) * Sophus::SO3d::exp(ori_x).inverse()).log();
+    d_vel = vel_y - vel_x;
+    d_ba = ba_y - ba_x;
+    d_bg = bg_y - bg_x;
+
+    return true;
+  }
+
+  virtual bool MinusJacobian(const double * /*x*/, double * jacobian) const
+  {
+    Eigen::Map<Eigen::Matrix<double, 15, 15, Eigen::RowMajor>> J(jacobian);
+    J.setIdentity();
+    return true;
+  }
 };
 
 }  // namespace slt_graph_locator

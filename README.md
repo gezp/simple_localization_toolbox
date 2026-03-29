@@ -1,6 +1,6 @@
 # simple localization toolbox (SLT)
 
-[![Build and Test](https://github.com/gezp/simple_localization_toolbox/actions/workflows/ci.yml/badge.svg?branch=humble)](https://github.com/gezp/simple_localization_toolbox/actions/workflows/ci.yml)
+[![Build and Test](https://github.com/gezp/simple_localization_toolbox/actions/workflows/ci.yml/badge.svg?branch=jazzy)](https://github.com/gezp/simple_localization_toolbox/actions/workflows/ci.yml)
 
 该项目基于ROS2平台实现了自动驾驶中的简单定位功能，主要以学习为目的，面向初学者学习入门，因此代码侧重于可读性，及扩展性，尽可能将代码进行解耦，并遵循ROS2的项目规范，以及代码风格。
 
@@ -10,7 +10,7 @@
 
 环境要求
 
-* ROS版本: `Humble`
+* ROS版本: `Jazzy`
 
 下载kitti数据集rosbag
 
@@ -30,7 +30,7 @@ unzip kitti_lidar_only_2011_10_03_drive_0027_synced.zip
 git clone https://github.com/gezp/simple_localization_toolbox.git
 # 进入ROS2工作空间, 安装依赖
 # cd  ~/ros2_ws
-rosdep install -y -r -q --from-paths src --ignore-src --rosdistro humble
+rosdep install -y -r -q --from-paths src --ignore-src --rosdistro jazzy
 ```
 
 编译

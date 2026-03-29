@@ -21,73 +21,73 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_slt_lidar_odometry = get_package_share_directory("slt_lidar_odometry")
-    pkg_slt_lidar_mapping = get_package_share_directory("slt_lidar_mapping")
-    rviz2_config = os.path.join(pkg_slt_lidar_mapping, "launch", "mapping.rviz")
+    pkg_slt_lidar_odometry = get_package_share_directory('slt_lidar_odometry')
+    pkg_slt_lidar_mapping = get_package_share_directory('slt_lidar_mapping')
+    rviz2_config = os.path.join(pkg_slt_lidar_mapping, 'launch', 'mapping.rviz')
     lidar_odometry_config = os.path.join(
-        pkg_slt_lidar_odometry, "config", "lidar_odometry.yaml"
+        pkg_slt_lidar_odometry, 'config', 'lidar_odometry.yaml'
     )
-    back_end_config = os.path.join(pkg_slt_lidar_mapping, "config", "back_end.yaml")
-    loop_closure_config = os.path.join(pkg_slt_lidar_mapping, "config", "loop_closure.yaml")
-    data_dir = os.path.join(os.environ["HOME"], "localization_data")
-    bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
+    back_end_config = os.path.join(pkg_slt_lidar_mapping, 'config', 'back_end.yaml')
+    loop_closure_config = os.path.join(pkg_slt_lidar_mapping, 'config', 'loop_closure.yaml')
+    data_dir = os.path.join(os.environ['HOME'], 'localization_data')
+    bag_path = os.path.join(data_dir, 'kitti_lidar_only_2011_10_03_drive_0027_synced')
     rosbag_node = ExecuteProcess(
-        name="rosbag",
-        cmd=["ros2 bag play", bag_path, "-d 3", "--read-ahead-queue-size 1000"],
+        name='rosbag',
+        cmd=['ros2 bag play', bag_path, '-d 3', '--read-ahead-queue-size 1000'],
         shell=True,
-        output="screen",
+        output='screen',
     )
     kitti_preprocess_node = Node(
-        name="kitti_preprocess_node",
-        package="slt_common",
-        executable="kitti_preprocess_node",
-        output="screen",
+        name='kitti_preprocess_node',
+        package='slt_common',
+        executable='kitti_preprocess_node',
+        output='screen',
     )
     lidar_odometry_node = Node(
-        name="lidar_odometry_node",
-        package="slt_lidar_odometry",
-        executable="lidar_odometry_node",
+        name='lidar_odometry_node',
+        package='slt_lidar_odometry',
+        executable='lidar_odometry_node',
         parameters=[
             {
-                "lidar_odometry_config": lidar_odometry_config,
-                "use_initial_pose_from_topic": True,
-                "base_frame_id": "base_link",
-                "lidar_frame_id": "velo_link",
+                'lidar_odometry_config': lidar_odometry_config,
+                'use_initial_pose_from_topic': True,
+                'base_frame_id': 'base_link',
+                'lidar_frame_id': 'velo_link',
             }
         ],
-        remappings=[("reference_odom", "/synced_gnss/pose")],
-        output="screen",
+        remappings=[('reference_odom', '/synced_gnss/pose')],
+        output='screen',
     )
     back_end_node = Node(
-        name="back_end_node",
-        package="slt_lidar_mapping",
-        executable="back_end_node",
+        name='back_end_node',
+        package='slt_lidar_mapping',
+        executable='back_end_node',
         parameters=[
             {
-                "back_end_config": back_end_config,
-                "data_path": data_dir,
-                "publish_tf": True,
-                "base_frame_id": "base_link",
-                "lidar_frame_id": "velo_link",
+                'back_end_config': back_end_config,
+                'data_path': data_dir,
+                'publish_tf': True,
+                'base_frame_id': 'base_link',
+                'lidar_frame_id': 'velo_link',
             }
         ],
-        output="screen",
+        output='screen',
     )
     loop_closure_node = Node(
-        name="loop_closure_node",
-        package="slt_lidar_mapping",
-        executable="loop_closure_node",
+        name='loop_closure_node',
+        package='slt_lidar_mapping',
+        executable='loop_closure_node',
         parameters=[
-            {"loop_closure_config": loop_closure_config, "data_path": data_dir}
+            {'loop_closure_config': loop_closure_config, 'data_path': data_dir}
         ],
-        output="screen",
+        output='screen',
     )
     rviz2 = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=["-d", rviz2_config],
-        output="screen",
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz2_config],
+        output='screen',
     )
     ld = LaunchDescription()
     ld.add_action(rosbag_node)

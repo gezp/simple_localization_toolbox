@@ -24,6 +24,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
 find_package(GeographicLib REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(Sophus REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common io filters registration)
 # find_package(backward_ros REQUIRED)
 
 include_directories(include)
@@ -86,6 +87,7 @@ target_link_libraries(${PROJECT_NAME}
   ${YAML_CPP_LIBRARIES}
   ${CERES_LIBRARIES}
   Sophus::Sophus
+  ${PCL_LIBRARIES}
 )
 
 # kitti_preprocess_node

@@ -21,29 +21,29 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_slt_common = get_package_share_directory("slt_common")
-    rviz2_config = os.path.join(pkg_slt_common, "launch", "hello_kitti.rviz")
-    data_dir = os.path.join(os.environ["HOME"], "localization_data")
-    bag_path = os.path.join(data_dir, "kitti_lidar_only_2011_10_03_drive_0027_synced")
+    pkg_slt_common = get_package_share_directory('slt_common')
+    rviz2_config = os.path.join(pkg_slt_common, 'launch', 'hello_kitti.rviz')
+    data_dir = os.path.join(os.environ['HOME'], 'localization_data')
+    bag_path = os.path.join(data_dir, 'kitti_lidar_only_2011_10_03_drive_0027_synced')
     rosbag_node = ExecuteProcess(
-        name="rosbag",
-        cmd=["ros2 bag play", bag_path, "-d 3", "--read-ahead-queue-size 1000"],
+        name='rosbag',
+        cmd=['ros2 bag play', bag_path, '-d 3', '--read-ahead-queue-size 1000'],
         shell=True,
-        output="screen",
+        output='screen',
     )
     hello_kitti_node = Node(
-        name="kitti_preprocess_node",
-        package="slt_common",
-        executable="kitti_preprocess_node",
-        parameters=[{"publish_tf": True}],
-        output="screen",
+        name='kitti_preprocess_node',
+        package='slt_common',
+        executable='kitti_preprocess_node',
+        parameters=[{'publish_tf': True}],
+        output='screen',
     )
     rviz2 = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=["-d", rviz2_config],
-        output="screen",
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz2_config],
+        output='screen',
     )
     ld = LaunchDescription()
     ld.add_action(rosbag_node)
