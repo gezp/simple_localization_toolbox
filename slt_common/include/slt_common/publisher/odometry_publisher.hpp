@@ -15,9 +15,11 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "tf2_ros/transform_broadcaster.h"
 
 #include "slt_common/sensor_data/odom_data.hpp"
 
@@ -29,6 +31,7 @@ public:
   OdometryPublisher(
     rclcpp::Node::SharedPtr node, std::string topic_name, std::string base_frame_id,
     std::string child_frame_id, int buff_size);
+  void set_tf_broadcaster(std::shared_ptr<tf2_ros::TransformBroadcaster> tf_pub);
   void publish(const OdomData & odom);
   void publish(const Eigen::Matrix4d & pose, double time);
   bool has_subscribers();
@@ -37,5 +40,6 @@ private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher_;
   nav_msgs::msg::Odometry odometry_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_pub_;
 };
 }  // namespace slt_common

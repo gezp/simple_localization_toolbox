@@ -40,6 +40,7 @@ SlidingWindowNode::SlidingWindowNode(rclcpp::Node::SharedPtr node)
     node, "localization/fused/pose", "map", base_frame_id_, 100);
   // tf:
   tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  optimized_odom_pub_->set_tf_broadcaster(tf_pub_);
   // extrinsics
   extrinsics_manager_ = std::make_shared<slt_common::ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
@@ -113,13 +114,6 @@ bool SlidingWindowNode::publish_data()
 {
   // get odom
   auto odom = sliding_window_->get_current_odom();
-  // publish tf
-  geometry_msgs::msg::TransformStamped msg;
-  msg.header.stamp = slt_common::to_ros_time(odom.time);
-  msg.header.frame_id = "map";
-  msg.child_frame_id = base_frame_id_;
-  msg.transform = slt_common::to_transform_msg(odom.pose);
-  tf_pub_->sendTransform(msg);
   // publish fusion odometry
   optimized_odom_pub_->publish(odom);
   return true;

@@ -49,7 +49,10 @@ KittiPreprocessNode::KittiPreprocessNode(rclcpp::Node::SharedPtr node)
   gnss_data_pub_ = std::make_shared<GnssPublisher>(node, "/kitti/gnss_data", 100);
   gnss_odom_pub_ =
     std::make_shared<OdometryPublisher>(node, "synced_gnss/pose", "map", base_frame_id_, 100);
-  tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  if (publish_tf_) {
+    tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+    gnss_odom_pub_->set_tf_broadcaster(tf_pub_);
+  }
   // extrinsics
   extrinsics_manager_ = std::make_shared<ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
@@ -101,15 +104,6 @@ bool KittiPreprocessNode::run()
       // publish gnss data and odometry
       gnss_data_pub_->publish(current_gnss_data_);
       gnss_odom_pub_->publish(odom);
-      // publish tf
-      if (publish_tf_) {
-        geometry_msgs::msg::TransformStamped msg;
-        msg.header.stamp = slt_common::to_ros_time(odom.time);
-        msg.header.frame_id = "map";
-        msg.child_frame_id = base_frame_id_;
-        msg.transform = slt_common::to_transform_msg(odom.pose);
-        tf_pub_->sendTransform(msg);
-      }
       valid_data = true;
     }
   }

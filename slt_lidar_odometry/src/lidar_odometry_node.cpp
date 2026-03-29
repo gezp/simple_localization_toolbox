@@ -81,7 +81,10 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
     std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/loam_feature", "map", 100);
   lidar_odom_pub_ = std::make_shared<slt_common::OdometryPublisher>(
     node, "lidar_odometry/odom", "map", base_frame_id_, 100);
-  tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  if (publish_tf_) {
+    tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+    lidar_odom_pub_->set_tf_broadcaster(tf_pub_);
+  }
   // extrinsics
   extrinsics_manager_ = std::make_shared<slt_common::ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
@@ -218,21 +221,6 @@ slt_common::OdomData LidarOdometryNode::align_odom_to_map(const slt_common::Odom
   return odom_aligned;
 }
 
-void LidarOdometryNode::publish_odom(const slt_common::OdomData & odom)
-{
-  // publish odom
-  lidar_odom_pub_->publish(odom);
-  // publish tf
-  if (publish_tf_) {
-    geometry_msgs::msg::TransformStamped msg;
-    msg.header.stamp = slt_common::to_ros_time(odom.time);
-    msg.header.frame_id = "map";
-    msg.child_frame_id = base_frame_id_;
-    msg.transform = slt_common::to_transform_msg(odom.pose);
-    tf_pub_->sendTransform(msg);
-  }
-}
-
 void LidarOdometryNode::publish_data(OdometryMethod method)
 {
   elapsed_time_statistics_.tic("publish_data");
@@ -240,7 +228,7 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
   if (method == OdometryMethod::Simple) {
     // publish odom
     odom = align_odom_to_map(simple_odometry_->get_current_odom());
-    publish_odom(odom);
+    lidar_odom_pub_->publish(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
       auto current_scan = simple_odometry_->get_current_scan();
@@ -255,7 +243,7 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
   } else if (method == OdometryMethod::Loam) {
     // publish odom
     odom = align_odom_to_map(loam_odometry_->get_current_odom());
-    publish_odom(odom);
+    lidar_odom_pub_->publish(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
       auto current_scan = loam_odometry_->get_current_scan();

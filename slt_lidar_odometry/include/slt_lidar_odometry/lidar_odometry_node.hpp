@@ -50,7 +50,6 @@ private:
   void set_extrinsics_for_odometry(OdometryMethod method, const Eigen::Matrix4d & T_base_lidar);
   bool update_odometry(OdometryMethod method, slt_common::LidarData & lidar_data);
   slt_common::OdomData align_odom_to_map(const slt_common::OdomData & odom);
-  void publish_odom(const slt_common::OdomData & odom);
   void publish_data(OdometryMethod method);
 
 private:

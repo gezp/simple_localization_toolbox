@@ -14,6 +14,8 @@
 
 #include "slt_common/publisher/odometry_publisher.hpp"
 
+#include "slt_common/msg_utils.hpp"
+
 namespace slt_common
 {
 OdometryPublisher::OdometryPublisher(
@@ -24,6 +26,11 @@ OdometryPublisher::OdometryPublisher(
   publisher_ = node_->create_publisher<nav_msgs::msg::Odometry>(topic_name, buff_size);
   odometry_.header.frame_id = base_frame_id;
   odometry_.child_frame_id = child_frame_id;
+}
+
+void OdometryPublisher::set_tf_broadcaster(std::shared_ptr<tf2_ros::TransformBroadcaster> tf_pub)
+{
+  tf_pub_ = tf_pub;
 }
 
 void OdometryPublisher::publish(const OdomData & odom)
@@ -53,6 +60,16 @@ void OdometryPublisher::publish(const OdomData & odom)
   odometry_.twist.twist.angular.z = odom.angular_velocity.z();
 
   publisher_->publish(odometry_);
+
+  // publish tf
+  if (tf_pub_) {
+    geometry_msgs::msg::TransformStamped msg;
+    msg.header.stamp = ros_time;
+    msg.header.frame_id = odometry_.header.frame_id;
+    msg.child_frame_id = odometry_.child_frame_id;
+    msg.transform = to_transform_msg(odom.pose);
+    tf_pub_->sendTransform(msg);
+  }
 }
 
 void OdometryPublisher::publish(const Eigen::Matrix4d & pose, double time)

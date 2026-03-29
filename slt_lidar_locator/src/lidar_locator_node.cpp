@@ -64,7 +64,10 @@ LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
     node, "lidar_locator/current_scan", "map", 100);
   lidar_pose_pub_ = std::make_shared<slt_common::OdometryPublisher>(
     node, "localization/lidar/pose", "map", base_frame_id_, 100);
-  tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  if (publish_tf_) {
+    tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
+    lidar_pose_pub_->set_tf_broadcaster(tf_pub_);
+  }
   // extrinsics tool
   extrinsics_manager_ = std::make_shared<slt_common::ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
@@ -152,15 +155,6 @@ bool LidarLocalizationNode::publish_data()
   auto odom = lidar_locator_->get_current_odom();
   lidar_pose_pub_->publish(odom);
   last_twist_ = slt_common::get_twist_from_odom(odom);
-  // publish tf
-  if (publish_tf_) {
-    geometry_msgs::msg::TransformStamped msg;
-    msg.header.stamp = slt_common::to_ros_time(odom.time);
-    msg.header.frame_id = "map";
-    msg.child_frame_id = base_frame_id_;
-    msg.transform = slt_common::to_transform_msg(odom.pose);
-    tf_pub_->sendTransform(msg);
-  }
   // puslish point cloud
   if (current_scan_pub_->has_subscribers()) {
     current_scan_pub_->publish(*lidar_locator_->get_current_scan());
