@@ -11,16 +11,14 @@ jobs:
       image: rostooling/setup-ros-docker:ubuntu-noble-ros-jazzy-desktop-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Pre install
         run: |
           /usr/bin/bash -c "apt-get update && apt-get install -y libunwind-dev libceres-dev"
-      - name: Remove flake8-quotes for linter
-        run: /usr/bin/bash -c "apt-get remove -y python3-flake8-quotes"
       - name: Build simple_localization_toolbox
-        uses: ros-tooling/action-ros-ci@v0.3
+        uses: ros-tooling/action-ros-ci@v0.4
         with:
           target-ros2-distro: jazzy
           skip-tests: true
