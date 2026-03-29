@@ -1,6 +1,6 @@
 # registration for scan to map matching
 registration:
-    registration_method: NDT_OMP
+    registration_method: NDT
     NDT:
         res : 1.0
         step_size : 0.1
@@ -38,7 +38,7 @@ global_localization:
     coarse_matching_yaw_count: 12
     coarse_matching_error_threshold: 1.0
     coarse_registration:
-        registration_method: NDT_OMP
+        registration_method: NDT
         NDT:
             res : 1.0
             step_size : 0.1

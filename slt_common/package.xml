@@ -17,7 +17,6 @@
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>slt_interface</depend>
-  <depend>ndt_omp_ros2</depend>
   <depend>yaml-cpp</depend>
   <depend>geographiclib</depend>
   <depend>libceres-dev</depend>

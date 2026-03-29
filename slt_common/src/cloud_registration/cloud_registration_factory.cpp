@@ -16,7 +16,6 @@
 
 #include "slt_common/cloud_registration/icp_registration.hpp"
 #include "slt_common/cloud_registration/icp_svd_registration.hpp"
-#include "slt_common/cloud_registration/ndt_omp_registration.hpp"
 #include "slt_common/cloud_registration/ndt_registration.hpp"
 
 namespace slt_common
@@ -35,8 +34,6 @@ std::shared_ptr<CloudRegistrationInterface> CloudRegistrationFactory::create(
     registration_ptr = std::make_shared<IcpRegistration>(config_node["ICP"]);
   } else if (registration_method == "ICP_SVD") {
     registration_ptr = std::make_shared<IcpSvdRegistration>(config_node["ICP_SVD"]);
-  } else if (registration_method == "NDT_OMP") {
-    registration_ptr = std::make_shared<NdtOmpRegistration>(config_node["NDT"]);
   } else {
     std::cerr << "Point cloud registration method " << registration_method << " NOT FOUND!";
   }

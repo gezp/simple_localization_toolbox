@@ -1,7 +1,7 @@
 # registration for loop closure
 registration:
     # 选择点云匹配方法
-    registration_method: NDT_OMP
+    registration_method: NDT
     ## 匹配相关参数
     NDT:
         res : 1.0

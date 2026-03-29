@@ -18,12 +18,12 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(slt_interface REQUIRED)
-find_package(ndt_omp_ros2 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
 find_package(GeographicLib REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(Sophus REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common io filters registration)
 # find_package(backward_ros REQUIRED)
 
 include_directories(include)
@@ -38,7 +38,6 @@ set(dependencies
   sensor_msgs
   nav_msgs
   slt_interface
-  ndt_omp_ros2
 )
 add_library(${PROJECT_NAME} SHARED
   # publisher
@@ -65,7 +64,6 @@ add_library(${PROJECT_NAME} SHARED
   src/cloud_registration/icp_registration.cpp
   src/cloud_registration/icp_svd_registration.cpp
   src/cloud_registration/ndt_registration.cpp
-  src/cloud_registration/ndt_omp_registration.cpp
   src/cloud_registration/cloud_registration_factory.cpp
   # loam
   src/loam/loam_feature_extraction.cpp
@@ -86,6 +84,7 @@ target_link_libraries(${PROJECT_NAME}
   ${YAML_CPP_LIBRARIES}
   ${CERES_LIBRARIES}
   Sophus::Sophus
+  ${PCL_LIBRARIES}
 )
 
 # kitti_preprocess_node

@@ -4,7 +4,7 @@ enable_elapsed_time_statistics: true
 simple:
     # registration for scan to map
     registration:
-        registration_method: NDT_OMP
+        registration_method: NDT
         ICP:
             max_corr_dist : 1.2
             trans_eps : 0.01
