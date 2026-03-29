@@ -96,8 +96,7 @@ private:
   bool has_new_local_map_ = false;
   pcl::PointCloud<pcl::PointXYZ>::Ptr global_map_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr local_map_;
-  double current_lidar_time_ = 0.0;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr current_cloud_;
+  slt_common::LidarData current_lidar_data_;
   slt_common::LidarFrame current_lidar_frame_;
   std::deque<slt_common::LidarFrame> history_frames_;
   std::deque<slt_common::GnssData> gnss_data_buffer_;

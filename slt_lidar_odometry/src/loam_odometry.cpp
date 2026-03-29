@@ -15,6 +15,7 @@
 #include "slt_lidar_odometry/loam_odometry.hpp"
 
 #include "slt_common/sensor_data_utils.hpp"
+#include "slt_common/lidar_utils.hpp"
 
 namespace slt_lidar_odometry
 {
@@ -101,8 +102,7 @@ slt_common::OdomData LoamOdometry::get_current_odom()
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr LoamOdometry::get_current_scan()
 {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr current_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::copyPointCloud(*current_frame_.point_cloud, *current_cloud);
+  auto current_cloud = to_pointcloud_xyz(current_frame_.point_cloud);
   return display_filter_->apply(current_cloud);
 }
 

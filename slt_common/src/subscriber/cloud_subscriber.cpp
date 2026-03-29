@@ -16,6 +16,8 @@
 
 #include <pcl_conversions/pcl_conversions.h>
 
+#include "slt_common/lidar_utils.hpp"
+
 namespace slt_common
 {
 
@@ -34,6 +36,7 @@ CloudSubscriber::CloudSubscriber(
       data.time = rclcpp::Time(msg->header.stamp).seconds();
       data.point_cloud.reset(new pcl::PointCloud<PointXYZIRT>());
       pcl::fromROSMsg(*msg, *(data.point_cloud));
+      remove_nan_from_pointcloud(data);
       data.has_intensity = has_field(msg, "intensity");
       data.has_ring = has_field(msg, "ring");
       data.has_time = has_field(msg, "time");

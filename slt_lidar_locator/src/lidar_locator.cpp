@@ -19,6 +19,7 @@
 #include <cmath>
 
 #include "slt_common/sensor_data_utils.hpp"
+#include "slt_common/lidar_utils.hpp"
 
 namespace slt_lidar_locator
 {
@@ -89,12 +90,7 @@ bool LidarLocalization::add_gnss_odom(const slt_common::OdomData & gnss_odom)
 bool LidarLocalization::update(const slt_common::LidarData & lidar_data)
 {
   has_new_local_map_ = false;
-  current_lidar_time_ = lidar_data.time;
-  current_cloud_.reset(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::copyPointCloud(*lidar_data.point_cloud, *current_cloud_);
-  // remove invalid measurements
-  std::vector<int> indices;
-  pcl::removeNaNFromPointCloud(*current_cloud_, *current_cloud_, indices);
+  current_lidar_data_ = lidar_data;
   // initialize if not
   if (!has_inited_) {
     if (init_global_localization()) {
@@ -138,7 +134,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr LidarLocalization::get_local_map()
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr LidarLocalization::get_current_scan()
 {
-  auto filtered_cloud = display_filter_->apply(current_cloud_);
+  auto filtered_cloud = display_filter_->apply(to_pointcloud_xyz(current_lidar_data_));
   pcl::transformPointCloud(*filtered_cloud, *filtered_cloud, current_lidar_frame_.pose);
   return filtered_cloud;
 }
@@ -214,11 +210,11 @@ bool LidarLocalization::update_local_map(const Eigen::Vector3d & position)
 bool LidarLocalization::match_scan_to_map(const Eigen::Matrix4d & predict_pose)
 {
   // downsample current lidar point cloud
-  auto filtered_cloud = current_scan_filter_->apply(current_cloud_);
+  auto filtered_cloud = current_scan_filter_->apply(to_pointcloud_xyz(current_lidar_data_));
   // matching
   registration_->match(filtered_cloud, predict_pose);
   // result
-  current_lidar_frame_.time = current_lidar_time_;
+  current_lidar_frame_.time = current_lidar_data_.time;
   current_lidar_frame_.pose = registration_->get_final_pose();
   return true;
 }
@@ -247,7 +243,7 @@ bool LidarLocalization::get_initial_pose_by_coarse_position(
   box_filter_->set_origin(coarse_position);
   auto local_map = box_filter_->apply(global_map_);
   // downsample
-  auto filtered_scan = coarse_voxel_filter_->apply(current_cloud_);
+  auto filtered_scan = coarse_voxel_filter_->apply(to_pointcloud_xyz(current_lidar_data_));
   auto filtered_map = coarse_voxel_filter_->apply(local_map);
   coarse_registration_->set_target(filtered_map);
   // match
@@ -276,7 +272,7 @@ bool LidarLocalization::get_initial_pose_by_coarse_pose(
   box_filter_->set_origin(coarse_pose.block<3, 1>(0, 3));
   auto local_map = box_filter_->apply(global_map_);
   // downsample
-  auto filtered_scan = coarse_voxel_filter_->apply(current_cloud_);
+  auto filtered_scan = coarse_voxel_filter_->apply(to_pointcloud_xyz(current_lidar_data_));
   auto filtered_map = coarse_voxel_filter_->apply(local_map);
   coarse_registration_->set_target(filtered_map);
   // match
@@ -293,7 +289,7 @@ bool LidarLocalization::get_initial_pose_by_coarse_pose(
 bool LidarLocalization::get_initial_pose_by_scan_context(Eigen::Matrix4d & initial_pose)
 {
   // place recognition by using scan context
-  if (!scan_context_manager_->detect_loop_closure(current_cloud_)) {
+  if (!scan_context_manager_->detect_loop_closure(to_pointcloud_xyz(current_lidar_data_))) {
     return false;
   }
   Eigen::Matrix4d proposal_pose = scan_context_manager_->get_pose();
@@ -311,7 +307,7 @@ bool LidarLocalization::get_initial_pose_by_gnss_data(Eigen::Matrix4d & initial_
   double min_dt = gnss_data_time_threshold_;
   Eigen::Vector3d gnss_position;
   for (size_t i = 0; i < gnss_data_buffer_.size(); i++) {
-    double dt = fabs(gnss_data_buffer_[i].time - current_lidar_time_);
+    double dt = fabs(gnss_data_buffer_[i].time - current_lidar_data_.time);
     if (dt < min_dt) {
       gnss_position = gnss_data_buffer_[i].antenna_position;
       min_dt = dt;
@@ -336,11 +332,11 @@ bool LidarLocalization::get_initial_pose_by_gnss_odometry(Eigen::Matrix4d & init
   }
   // get gnss odom at time of current_lidar_data
   slt_common::OdomData odom;
-  if (!gnss_odom_buffer_->get_interpolated_data(current_lidar_time_, odom)) {
+  if (!gnss_odom_buffer_->get_interpolated_data(current_lidar_data_.time, odom)) {
     // get the nearest gnss odometry if can't interpolate odom
-    gnss_odom_buffer_->get_nearest_data(current_lidar_time_, odom);
+    gnss_odom_buffer_->get_nearest_data(current_lidar_data_.time, odom);
   }
-  double min_dt = fabs(odom.time - current_lidar_time_);
+  double min_dt = fabs(odom.time - current_lidar_data_.time);
   std::cout << "the time diffence of gnss odometry: " << min_dt << std::endl;
   if (min_dt >= gnss_odometry_time_threshold_) {
     return false;

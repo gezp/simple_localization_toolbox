@@ -14,6 +14,7 @@
 
 #include "slt_common/lidar_utils.hpp"
 
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -126,6 +127,27 @@ bool undistort_point_cloud(LidarData & lidar_data, const TwistData & twist_data)
     p.z = undistort_point.z();
   }
   return true;
+}
+
+void remove_nan_from_pointcloud(LidarData & lidar_data)
+{
+  auto & cloud = lidar_data.point_cloud;
+  size_t valid = 0;
+  for (size_t i = 0; i < cloud->points.size(); ++i) {
+    const auto & p = cloud->points[i];
+    if (!std::isnan(p.x) && !std::isnan(p.y) && !std::isnan(p.z)) {
+      cloud->points[valid++] = p;
+    }
+  }
+  cloud->points.resize(valid);
+}
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr to_pointcloud_xyz(
+  const pcl::PointCloud<PointXYZIRT>::Ptr & cloud)
+{
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::copyPointCloud(*cloud, *output);
+  return output;
 }
 
 }  // namespace slt_common

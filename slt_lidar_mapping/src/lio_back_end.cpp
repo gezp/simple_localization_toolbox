@@ -20,6 +20,7 @@
 #include <filesystem>
 
 #include "slt_common/sensor_data_utils.hpp"
+#include "slt_common/lidar_utils.hpp"
 
 namespace slt_lidar_mapping
 {
@@ -105,8 +106,7 @@ bool LioBackEnd::update(
     has_new_key_frame_ = true;
     // add new key_frame
     Eigen::Matrix4d pose = T_map_odom_ * lidar_odom.pose * T_base_lidar_;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
-    pcl::copyPointCloud(*lidar_data.point_cloud, *cloud_xyz);
+    auto cloud_xyz = to_pointcloud_xyz(lidar_data);
     key_frame_manager_->add_key_frame(lidar_odom.time, pose, cloud_xyz);
     new_key_frame_cnt_++;
     // add node
