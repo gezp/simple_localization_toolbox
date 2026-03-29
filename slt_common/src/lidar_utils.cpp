@@ -84,6 +84,9 @@ bool convert_velodyne64(LidarData & lidar_data, double dt, bool is_clockwise)
     cnt++;
   }
   cloud->points.resize(cnt);
+  cloud->width = cnt;
+  cloud->height = 1;
+  cloud->is_dense = true;
   // calculate time for each point
   std::vector<bool> is_first(num_scans, true);
   std::vector<double> yaw_first(num_scans, 0.0);  // yaw of first scan point
@@ -140,6 +143,9 @@ void remove_nan_from_pointcloud(LidarData & lidar_data)
     }
   }
   cloud->points.resize(valid);
+  cloud->width = valid;
+  cloud->height = 1;
+  cloud->is_dense = true;
 }
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr to_pointcloud_xyz(
