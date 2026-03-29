@@ -72,8 +72,7 @@ bool BackEnd::add_loop_candidate(const slt_common::LoopCandidate & loop_candidat
 }
 
 bool BackEnd::update(
-  const slt_common::LidarData & lidar_data,
-  const slt_common::OdomData & lidar_odom)
+  const slt_common::LidarData & lidar_data, const slt_common::OdomData & lidar_odom)
 {
   has_new_key_frame_ = false;
   has_new_optimized_ = false;
@@ -124,9 +123,15 @@ bool BackEnd::optimize(bool force)
   return true;
 }
 
-bool BackEnd::has_new_key_frame() {return has_new_key_frame_;}
+bool BackEnd::has_new_key_frame()
+{
+  return has_new_key_frame_;
+}
 
-bool BackEnd::has_new_optimized() {return has_new_optimized_;}
+bool BackEnd::has_new_optimized()
+{
+  return has_new_optimized_;
+}
 
 slt_common::OdomData BackEnd::get_current_odom()
 {

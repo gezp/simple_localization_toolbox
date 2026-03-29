@@ -24,8 +24,7 @@ LoamOdometry::LoamOdometry(const YAML::Node & config)
   // init registration and filter
   feature_extraction_ =
     std::make_shared<slt_common::LoamFeatureExtraction>(config["loam_feature_extraction"]);
-  registration_ =
-    std::make_shared<slt_common::LoamRegistration>(config["loam_registration"]);
+  registration_ = std::make_shared<slt_common::LoamRegistration>(config["loam_registration"]);
   using VoxelFilter = slt_common::VoxelFilter;
   display_filter_ = std::make_shared<VoxelFilter>(config["display_filter"]);
   bool enabel = config["enable_elapsed_time_statistics"].as<bool>();
@@ -42,8 +41,7 @@ void LoamOdometry::set_extrinsic(const Eigen::Matrix4d & T_base_lidar)
   T_lidar_base_ = T_base_lidar.inverse();
 }
 
-bool LoamOdometry::update(
-  const slt_common::LidarData & lidar_data)
+bool LoamOdometry::update(const slt_common::LidarData & lidar_data)
 {
   elapsed_time_statistics_.tic("update");
   current_frame_.time = lidar_data.time;

@@ -29,8 +29,7 @@ struct PointXYZIT
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
   slt_common::PointXYZIT,
-  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(
-    double, time, time))
+  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(double, time, time))
 
 namespace slt_common
 {

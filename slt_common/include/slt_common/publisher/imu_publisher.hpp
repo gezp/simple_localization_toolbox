@@ -21,7 +21,6 @@
 //
 #include "slt_common/sensor_data/imu_data.hpp"
 
-
 namespace slt_common
 {
 class ImuPublisher

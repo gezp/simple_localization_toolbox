@@ -44,9 +44,7 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   node->get_parameter("publish_undistorted_point_cloud", publish_undistorted_point_cloud_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
-  RCLCPP_INFO(
-    node->get_logger(), "lidar_odometry_config: [%s]",
-    lidar_odometry_config.c_str());
+  RCLCPP_INFO(node->get_logger(), "lidar_odometry_config: [%s]", lidar_odometry_config.c_str());
   if (lidar_odometry_config == "" || (!std::filesystem::exists(lidar_odometry_config))) {
     RCLCPP_FATAL(node->get_logger(), "lidar_odometry_config is invalid");
     return;
@@ -75,12 +73,12 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   }
   undistorted_scan_pub_ = std::make_shared<slt_common::CloudPublisher>(
     node, "lidar_odometry/undistorted_pointcloud", lidar_frame_id_, 100);
-  current_scan_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "lidar_odometry/current_scan", "map", 100);
-  local_map_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "lidar_odometry/local_map", "map", 100);
-  loam_feature_pub_ = std::make_shared<slt_common::CloudPublisher>(
-    node, "lidar_odometry/loam_feature", "map", 100);
+  current_scan_pub_ =
+    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/current_scan", "map", 100);
+  local_map_pub_ =
+    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/local_map", "map", 100);
+  loam_feature_pub_ =
+    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/loam_feature", "map", 100);
   lidar_odom_pub_ = std::make_shared<slt_common::OdometryPublisher>(
     node, "lidar_odometry/odom", "map", base_frame_id_, 100);
   tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
@@ -190,8 +188,7 @@ void LidarOdometryNode::set_extrinsics_for_odometry(
   }
 }
 
-bool LidarOdometryNode::update_odometry(
-  OdometryMethod method, slt_common::LidarData & lidar_data)
+bool LidarOdometryNode::update_odometry(OdometryMethod method, slt_common::LidarData & lidar_data)
 {
   elapsed_time_statistics_.tic("update_odometry");
   // undistort point cloud
@@ -211,8 +208,7 @@ bool LidarOdometryNode::update_odometry(
   return success;
 }
 
-slt_common::OdomData LidarOdometryNode::align_odom_to_map(
-  const slt_common::OdomData & odom)
+slt_common::OdomData LidarOdometryNode::align_odom_to_map(const slt_common::OdomData & odom)
 {
   slt_common::OdomData odom_aligned;
   odom_aligned.time = odom.time;

@@ -20,8 +20,7 @@
 namespace slt_common
 {
 
-bool convert_velodyne64(
-  LidarData & lidar_data, double dt = 0.1, bool is_clockwise = false);
+bool convert_velodyne64(LidarData & lidar_data, double dt = 0.1, bool is_clockwise = false);
 
 bool undistort_point_cloud(LidarData & lidar_data, const TwistData & twist_data);
 

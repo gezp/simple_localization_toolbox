@@ -43,6 +43,5 @@ struct LidarData
 }  // namespace slt_common
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-  slt_common::PointXYZIRT,
-  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(uint8_t, ring, ring)(
-    double, time, time))
+  slt_common::PointXYZIRT, (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(
+    uint8_t, ring, ring)(double, time, time))
