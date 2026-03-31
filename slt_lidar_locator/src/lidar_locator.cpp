@@ -25,7 +25,7 @@ namespace slt_lidar_locator
 {
 LidarLocalization::LidarLocalization()
 {
-  registration_factory_ = std::make_shared<slt_common::CloudRegistrationFactory>();
+  registration_factory_ = std::make_shared<slt_common::PointCloudRegistrationFactory>();
 }
 
 bool LidarLocalization::init_config(const std::string & config_path, const std::string & data_path)

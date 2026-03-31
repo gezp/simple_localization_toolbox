@@ -23,7 +23,7 @@ namespace slt_lidar_odometry
 {
 SimpleOdometry::SimpleOdometry(const YAML::Node & config)
 {
-  registration_factory_ = std::make_shared<slt_common::CloudRegistrationFactory>();
+  registration_factory_ = std::make_shared<slt_common::PointCloudRegistrationFactory>();
   //
   local_frame_num_ = config["local_frame_num"].as<int>();
   key_frame_distance_ = config["key_frame_distance"].as<float>();

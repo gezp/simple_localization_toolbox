@@ -16,18 +16,18 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "slt_common/cloud_registration/cloud_registration_interface.hpp"
+#include "slt_common/point_cloud_registration/point_cloud_registration_interface.hpp"
 #include "pclomp/ndt_omp.h"
 
 namespace slt_common
 {
-class NdtOmpRegistration : public CloudRegistrationInterface
+class NdtOmp : public PointCloudRegistrationInterface
 {
   using PointCloudPtr = pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 public:
-  explicit NdtOmpRegistration(const YAML::Node & node);
-  NdtOmpRegistration(float res, float step_size, float trans_eps, int max_iter);
+  explicit NdtOmp(const YAML::Node & node);
+  NdtOmp(float res, float step_size, float trans_eps, int max_iter);
 
   bool set_target(const PointCloudPtr & target) override;
   bool match(const PointCloudPtr & input, const Eigen::Matrix4d & initial_pose) override;

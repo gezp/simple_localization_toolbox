@@ -23,7 +23,7 @@
 #include "slt_common/sensor_data/odom_data.hpp"
 #include "slt_common/sensor_data/pose_data.hpp"
 #include "slt_common/cloud_filter/voxel_filter.hpp"
-#include "slt_common/cloud_registration/cloud_registration_factory.hpp"
+#include "slt_common/point_cloud_registration/point_cloud_registration_factory.hpp"
 
 namespace slt_lidar_odometry
 {
@@ -55,8 +55,8 @@ private:
   bool match_scan_to_map(const Eigen::Matrix4d & predict_pose, Eigen::Matrix4d & final_pose);
 
 private:
-  std::shared_ptr<slt_common::CloudRegistrationFactory> registration_factory_;
-  std::shared_ptr<slt_common::CloudRegistrationInterface> registration_;
+  std::shared_ptr<slt_common::PointCloudRegistrationFactory> registration_factory_;
+  std::shared_ptr<slt_common::PointCloudRegistrationInterface> registration_;
   std::shared_ptr<slt_common::VoxelFilter> current_scan_filter_;
   std::shared_ptr<slt_common::VoxelFilter> local_map_filter_;
   std::shared_ptr<slt_common::VoxelFilter> display_filter_;

@@ -1,7 +1,22 @@
 # registration for scan to map matching
 registration:
-    registration_method: NDT_OMP
-    NDT:
+    method: NDT_OMP
+    PCL_NDT:
+        res : 1.0
+        step_size : 0.1
+        trans_eps : 0.01
+        max_iter : 30
+    PCL_ICP:
+        max_corr_dist : 1.2
+        trans_eps : 0.01
+        euc_fitness_eps : 0.36
+        max_iter : 30
+    ICP_SVD:
+        max_corr_dist : 1.2
+        trans_eps : 0.01
+        euc_fitness_eps : 0.36
+        max_iter : 10
+    NDT_OMP:
         res : 1.0
         step_size : 0.1
         trans_eps : 0.01
@@ -38,8 +53,23 @@ global_localization:
     coarse_matching_yaw_count: 12
     coarse_matching_error_threshold: 1.0
     coarse_registration:
-        registration_method: NDT_OMP
-        NDT:
+        method: NDT_OMP
+        PCL_NDT:
+            res : 1.0
+            step_size : 0.1
+            trans_eps : 0.01
+            max_iter : 10
+        PCL_ICP:
+            max_corr_dist : 1.2
+            trans_eps : 0.01
+            euc_fitness_eps : 0.36
+            max_iter : 10
+        ICP_SVD:
+            max_corr_dist : 1.2
+            trans_eps : 0.01
+            euc_fitness_eps : 0.36
+            max_iter : 10
+        NDT_OMP:
             res : 1.0
             step_size : 0.1
             trans_eps : 0.01

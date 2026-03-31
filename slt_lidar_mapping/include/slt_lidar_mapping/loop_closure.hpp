@@ -21,7 +21,7 @@
 #include <string>
 //
 #include "slt_common/cloud_filter/voxel_filter.hpp"
-#include "slt_common/cloud_registration/cloud_registration_factory.hpp"
+#include "slt_common/point_cloud_registration/point_cloud_registration_factory.hpp"
 #include "slt_common/sensor_data/lidar_data.hpp"
 #include "slt_common/sensor_data/loop_candidate.hpp"
 #include "slt_common/lidar_key_frame_manager.hpp"
@@ -53,8 +53,8 @@ private:
 
   std::shared_ptr<slt_common::VoxelFilter> current_scan_filter_;
   std::shared_ptr<slt_common::VoxelFilter> local_map_filter_;
-  std::shared_ptr<slt_common::CloudRegistrationInterface> registration_;
-  std::shared_ptr<slt_common::CloudRegistrationFactory> registration_factory_;
+  std::shared_ptr<slt_common::PointCloudRegistrationInterface> registration_;
+  std::shared_ptr<slt_common::PointCloudRegistrationFactory> registration_factory_;
   std::shared_ptr<slt_common::LidarKeyFrameManager> key_frame_manager_;
   std::shared_ptr<scan_context::ScanContextManager> scan_context_manager_;
   // data

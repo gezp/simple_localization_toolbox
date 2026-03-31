@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_common/cloud_registration/ndt_omp_registration.hpp"
+#include "slt_common/point_cloud_registration/ndt_omp.hpp"
 
 namespace slt_common
 {
 
-NdtOmpRegistration::NdtOmpRegistration(const YAML::Node & node)
+NdtOmp::NdtOmp(const YAML::Node & node)
 : ndt_(new pclomp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ>())
 {
   float res = node["res"].as<float>();
@@ -30,13 +30,13 @@ NdtOmpRegistration::NdtOmpRegistration(const YAML::Node & node)
   set_param(res, step_size, trans_eps, max_iter);
 }
 
-NdtOmpRegistration::NdtOmpRegistration(float res, float step_size, float trans_eps, int max_iter)
+NdtOmp::NdtOmp(float res, float step_size, float trans_eps, int max_iter)
 : ndt_(new pclomp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ>())
 {
   set_param(res, step_size, trans_eps, max_iter);
 }
 
-bool NdtOmpRegistration::set_param(float res, float step_size, float trans_eps, int max_iter)
+bool NdtOmp::set_param(float res, float step_size, float trans_eps, int max_iter)
 {
   ndt_->setResolution(res);
   ndt_->setStepSize(step_size);
@@ -46,28 +46,28 @@ bool NdtOmpRegistration::set_param(float res, float step_size, float trans_eps, 
   return true;
 }
 
-bool NdtOmpRegistration::set_target(const PointCloudPtr & target)
+bool NdtOmp::set_target(const PointCloudPtr & target)
 {
   ndt_->setInputTarget(target);
   return true;
 }
 
-bool NdtOmpRegistration::match(
-  const NdtOmpRegistration::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
+bool NdtOmp::match(
+  const NdtOmp::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
 {
   PointCloudPtr result_cloud(new pcl::PointCloud<pcl::PointXYZ>());
   ndt_->setInputSource(input);
   ndt_->align(*result_cloud, initial_pose.cast<float>());
   return true;
 }
-Eigen::Matrix4d NdtOmpRegistration::get_final_pose()
+Eigen::Matrix4d NdtOmp::get_final_pose()
 {
   return ndt_->getFinalTransformation().cast<double>();
 }
 
-double NdtOmpRegistration::get_fitness_score() {return ndt_->getFitnessScore();}
+double NdtOmp::get_fitness_score() {return ndt_->getFitnessScore();}
 
-void NdtOmpRegistration::print_info()
+void NdtOmp::print_info()
 {
   std::cout << "[NDT_OMP] "
             << "res: " << ndt_->getResolution() << ", "

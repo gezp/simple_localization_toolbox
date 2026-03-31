@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_common/cloud_registration/ndt_registration.hpp"
+#include "slt_common/point_cloud_registration/pcl_ndt.hpp"
 
 namespace slt_common
 {
 
-NdtRegistration::NdtRegistration(const YAML::Node & node)
+PclNdt::PclNdt(const YAML::Node & node)
 : ndt_(new pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ>())
 {
   float res = node["res"].as<float>();
@@ -28,13 +28,13 @@ NdtRegistration::NdtRegistration(const YAML::Node & node)
   set_param(res, step_size, trans_eps, max_iter);
 }
 
-NdtRegistration::NdtRegistration(float res, float step_size, float trans_eps, int max_iter)
+PclNdt::PclNdt(float res, float step_size, float trans_eps, int max_iter)
 : ndt_(new pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ>())
 {
   set_param(res, step_size, trans_eps, max_iter);
 }
 
-bool NdtRegistration::set_param(float res, float step_size, float trans_eps, int max_iter)
+bool PclNdt::set_param(float res, float step_size, float trans_eps, int max_iter)
 {
   ndt_->setResolution(res);
   ndt_->setStepSize(step_size);
@@ -44,28 +44,28 @@ bool NdtRegistration::set_param(float res, float step_size, float trans_eps, int
   return true;
 }
 
-bool NdtRegistration::set_target(const PointCloudPtr & target)
+bool PclNdt::set_target(const PointCloudPtr & target)
 {
   ndt_->setInputTarget(target);
   return true;
 }
 
-bool NdtRegistration::match(
-  const NdtRegistration::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
+bool PclNdt::match(
+  const PclNdt::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
 {
   PointCloudPtr result_cloud(new pcl::PointCloud<pcl::PointXYZ>());
   ndt_->setInputSource(input);
   ndt_->align(*result_cloud, initial_pose.cast<float>());
   return true;
 }
-Eigen::Matrix4d NdtRegistration::get_final_pose()
+Eigen::Matrix4d PclNdt::get_final_pose()
 {
   return ndt_->getFinalTransformation().cast<double>();
 }
 
-double NdtRegistration::get_fitness_score() {return ndt_->getFitnessScore();}
+double PclNdt::get_fitness_score() {return ndt_->getFitnessScore();}
 
-void NdtRegistration::print_info()
+void PclNdt::print_info()
 {
   std::cout << "[NDT] "
             << "res: " << ndt_->getResolution() << ", "
