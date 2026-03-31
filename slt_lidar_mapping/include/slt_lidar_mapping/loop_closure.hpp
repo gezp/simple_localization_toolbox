@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 //
-#include "slt_common/cloud_filter/voxel_filter.hpp"
+#include "slt_common/point_cloud_filter/voxel_filter.hpp"
 #include "slt_common/point_cloud_registration/point_cloud_registration_factory.hpp"
 #include "slt_common/sensor_data/lidar_data.hpp"
 #include "slt_common/sensor_data/loop_candidate.hpp"

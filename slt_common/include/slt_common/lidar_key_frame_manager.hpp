@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include "slt_common/cloud_filter/voxel_filter.hpp"
+#include "slt_common/point_cloud_filter/voxel_filter.hpp"
 #include "slt_common/sensor_data/lidar_frame.hpp"
 
 namespace slt_common

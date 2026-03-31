@@ -22,7 +22,7 @@
 #include "slt_common/sensor_data/lidar_data.hpp"
 #include "slt_common/sensor_data/odom_data.hpp"
 #include "slt_common/sensor_data/pose_data.hpp"
-#include "slt_common/cloud_filter/voxel_filter.hpp"
+#include "slt_common/point_cloud_filter/voxel_filter.hpp"
 #include "slt_common/point_cloud_registration/point_cloud_registration_factory.hpp"
 
 namespace slt_lidar_odometry
