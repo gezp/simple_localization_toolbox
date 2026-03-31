@@ -59,15 +59,15 @@ add_library(${PROJECT_NAME} SHARED
   src/subscriber/nav_sat_fix_subscriber.cpp
   src/subscriber/odometry_subscriber.cpp
   src/subscriber/twist_subscriber.cpp
-  # cloud_filter
-  src/cloud_filter/box_filter.cpp
-  src/cloud_filter/voxel_filter.cpp
-  # cloud_registration
-  src/cloud_registration/icp_registration.cpp
-  src/cloud_registration/icp_svd_registration.cpp
-  src/cloud_registration/ndt_registration.cpp
-  src/cloud_registration/ndt_omp_registration.cpp
-  src/cloud_registration/cloud_registration_factory.cpp
+  # point_cloud_filter
+  src/point_cloud_filter/box_filter.cpp
+  src/point_cloud_filter/voxel_filter.cpp
+  # point_cloud_registration
+  src/point_cloud_registration/pcl_icp.cpp
+  src/point_cloud_registration/icp_svd.cpp
+  src/point_cloud_registration/pcl_ndt.cpp
+  src/point_cloud_registration/ndt_omp.cpp
+  src/point_cloud_registration/point_cloud_registration_factory.cpp
   # loam
   src/loam/loam_feature_extraction.cpp
   src/loam/loam_registration.cpp

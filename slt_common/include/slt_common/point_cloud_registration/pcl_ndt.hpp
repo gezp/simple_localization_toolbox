@@ -17,17 +17,17 @@
 #include <pcl/registration/ndt.h>
 #include <yaml-cpp/yaml.h>
 
-#include "slt_common/cloud_registration/cloud_registration_interface.hpp"
+#include "slt_common/point_cloud_registration/point_cloud_registration_interface.hpp"
 
 namespace slt_common
 {
-class NdtRegistration : public CloudRegistrationInterface
+class PclNdt : public PointCloudRegistrationInterface
 {
   using PointCloudPtr = pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 public:
-  explicit NdtRegistration(const YAML::Node & node);
-  NdtRegistration(float res, float step_size, float trans_eps, int max_iter);
+  explicit PclNdt(const YAML::Node & node);
+  PclNdt(float res, float step_size, float trans_eps, int max_iter);
 
   bool set_target(const PointCloudPtr & target) override;
   bool match(const PointCloudPtr & input, const Eigen::Matrix4d & initial_pose) override;

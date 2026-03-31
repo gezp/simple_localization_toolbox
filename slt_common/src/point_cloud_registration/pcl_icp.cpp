@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "slt_common/cloud_registration/icp_registration.hpp"
+#include "slt_common/point_cloud_registration/pcl_icp.hpp"
 
 namespace slt_common
 {
 
-IcpRegistration::IcpRegistration(const YAML::Node & node)
+PclIcp::PclIcp(const YAML::Node & node)
 : icp_(new pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>())
 {
   float max_corr_dist = node["max_corr_dist"].as<float>();
@@ -28,14 +28,14 @@ IcpRegistration::IcpRegistration(const YAML::Node & node)
   set_param(max_corr_dist, trans_eps, euc_fitness_eps, max_iter);
 }
 
-IcpRegistration::IcpRegistration(
+PclIcp::PclIcp(
   float max_corr_dist, float trans_eps, float euc_fitness_eps, int max_iter)
 : icp_(new pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>())
 {
   set_param(max_corr_dist, trans_eps, euc_fitness_eps, max_iter);
 }
 
-bool IcpRegistration::set_param(
+bool PclIcp::set_param(
   float max_corr_dist, float trans_eps, float euc_fitness_eps, int max_iter)
 {
   icp_->setMaxCorrespondenceDistance(max_corr_dist);
@@ -45,14 +45,14 @@ bool IcpRegistration::set_param(
   return true;
 }
 
-bool IcpRegistration::set_target(const PointCloudPtr & target)
+bool PclIcp::set_target(const PointCloudPtr & target)
 {
   icp_->setInputTarget(target);
   return true;
 }
 
-bool IcpRegistration::match(
-  const IcpRegistration::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
+bool PclIcp::match(
+  const PclIcp::PointCloudPtr & input, const Eigen::Matrix4d & initial_pose)
 {
   PointCloudPtr result_cloud(new pcl::PointCloud<pcl::PointXYZ>());
   icp_->setInputSource(input);
@@ -60,14 +60,14 @@ bool IcpRegistration::match(
   return true;
 }
 
-Eigen::Matrix4d IcpRegistration::get_final_pose()
+Eigen::Matrix4d PclIcp::get_final_pose()
 {
   return icp_->getFinalTransformation().cast<double>();
 }
 
-double IcpRegistration::get_fitness_score() {return icp_->getFitnessScore();}
+double PclIcp::get_fitness_score() {return icp_->getFitnessScore();}
 
-void IcpRegistration::print_info()
+void PclIcp::print_info()
 {
   std::cout << "[ICP] "
             << "max_corr_dist: " << icp_->getMaxCorrespondenceDistance() << ", "

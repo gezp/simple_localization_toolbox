@@ -14,20 +14,23 @@
 
 #pragma once
 
-#include <pcl/registration/icp.h>
+#include <pcl/kdtree/kdtree_flann.h>
 #include <yaml-cpp/yaml.h>
 
-#include "slt_common/cloud_registration/cloud_registration_interface.hpp"
+#include <vector>
+
+#include "slt_common/point_cloud_registration/point_cloud_registration_interface.hpp"
 
 namespace slt_common
 {
-class IcpRegistration : public CloudRegistrationInterface
+
+class IcpSvd : public PointCloudRegistrationInterface
 {
   using PointCloudPtr = pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 public:
-  explicit IcpRegistration(const YAML::Node & node);
-  IcpRegistration(float max_corr_dist, float trans_eps, float euc_fitness_eps, int max_iter);
+  explicit IcpSvd(const YAML::Node & node);
+  IcpSvd(float max_corr_dist, float trans_eps, float euc_fitness_eps, int max_iter);
 
   bool set_target(const PointCloudPtr & target) override;
   bool match(const PointCloudPtr & input, const Eigen::Matrix4d & initial_pose) override;
@@ -37,8 +40,26 @@ public:
 
 private:
   bool set_param(float max_corr_dist, float trans_eps, float euc_fitness_eps, int max_iter);
+  size_t get_correspondence(
+    const PointCloudPtr & input_source, std::vector<Eigen::Vector3f> & xs,
+    std::vector<Eigen::Vector3f> & ys);
+  void get_transform(
+    const std::vector<Eigen::Vector3f> & xs, const std::vector<Eigen::Vector3f> & ys,
+    Eigen::Matrix4f & transformation);
+  bool is_significant(const Eigen::Matrix4f & transformation, const float trans_eps);
 
 private:
-  pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ>::Ptr icp_;
+  float max_corr_dist_;
+  float trans_eps_;
+  float euc_fitness_eps_;
+  int max_iter_;
+
+  PointCloudPtr input_target_;
+  pcl::KdTreeFLANN<pcl::PointXYZ>::Ptr input_target_kdtree_;
+  PointCloudPtr input_source_;
+
+  Eigen::Matrix4f transformation_;
+  Eigen::Matrix4d final_pose_;
 };
+
 }  // namespace slt_common

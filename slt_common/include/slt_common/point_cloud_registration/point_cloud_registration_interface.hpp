@@ -14,18 +14,22 @@
 
 #pragma once
 
-#include <yaml-cpp/yaml.h>
-
-#include <memory>
-
-#include "slt_common/cloud_registration/cloud_registration_interface.hpp"
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <Eigen/Dense>
 
 namespace slt_common
 {
-class CloudRegistrationFactory
+class PointCloudRegistrationInterface
 {
+  using PointCloudPtr = pcl::PointCloud<pcl::PointXYZ>::Ptr;
+
 public:
-  CloudRegistrationFactory();
-  std::shared_ptr<CloudRegistrationInterface> create(const YAML::Node & config_node);
+  virtual ~PointCloudRegistrationInterface() = default;
+  virtual bool set_target(const PointCloudPtr & target) = 0;
+  virtual bool match(const PointCloudPtr & input, const Eigen::Matrix4d & initial_pose) = 0;
+  virtual Eigen::Matrix4d get_final_pose() = 0;
+  virtual double get_fitness_score() = 0;
+  virtual void print_info() = 0;
 };
 }  // namespace slt_common

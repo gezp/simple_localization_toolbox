@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-#include "slt_common/cloud_filter/voxel_filter.hpp"
+#include "slt_common/point_cloud_filter/voxel_filter.hpp"
 #include "slt_common/loam/loam_feature_extraction.hpp"
 #include "slt_common/loam/loam_registration.hpp"
 #include "slt_common/sensor_data/lidar_data.hpp"

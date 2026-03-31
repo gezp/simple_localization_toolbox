@@ -1,17 +1,26 @@
 # registration for loop closure
 registration:
-    # 选择点云匹配方法
-    registration_method: NDT_OMP
+    method: NDT_OMP
     ## 匹配相关参数
-    NDT:
+    PCL_NDT:
         res : 1.0
         step_size : 0.1
         trans_eps : 0.01
         max_iter : 30
-    ICP:
+    PCL_ICP:
         max_corr_dist : 1.2
         trans_eps : 0.01
         euc_fitness_eps : 0.36
+        max_iter : 30
+    ICP_SVD:
+        max_corr_dist : 1.2
+        trans_eps : 0.01
+        euc_fitness_eps : 0.36
+        max_iter : 10
+    NDT_OMP:
+        res : 1.0
+        step_size : 0.1
+        trans_eps : 0.01
         max_iter : 30
 
 # 匹配时为了精度更高，应该选用scan-to-map的方式

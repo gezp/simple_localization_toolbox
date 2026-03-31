@@ -26,7 +26,7 @@
 #include "slt_common/sensor_data/lidar_frame.hpp"
 #include "slt_common/sensor_data/loop_candidate.hpp"
 #include "slt_common/sensor_data/odom_data.hpp"
-#include "slt_common/cloud_filter/voxel_filter.hpp"
+#include "slt_common/point_cloud_filter/voxel_filter.hpp"
 #include "slt_common/lidar_key_frame_manager.hpp"
 #include "slt_common/odom_data_buffer.hpp"
 #include "slt_lidar_mapping/optimizer/prvag_optimizer_g2o.hpp"
