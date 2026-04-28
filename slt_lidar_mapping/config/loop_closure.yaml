@@ -1,6 +1,6 @@
 # registration for loop closure
 registration:
-    method: NDT_OMP
+    method: NDT
     ## 匹配相关参数
     PCL_NDT:
         res : 1.0
@@ -17,7 +17,7 @@ registration:
         trans_eps : 0.01
         euc_fitness_eps : 0.36
         max_iter : 10
-    NDT_OMP:
+    NDT:
         res : 1.0
         step_size : 0.1
         trans_eps : 0.01
