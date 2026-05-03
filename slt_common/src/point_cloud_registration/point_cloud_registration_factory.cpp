@@ -17,7 +17,7 @@
 #include "slt_common/point_cloud_registration/pcl_icp.hpp"
 #include "slt_common/point_cloud_registration/icp_svd.hpp"
 #include "slt_common/point_cloud_registration/pcl_ndt.hpp"
-#include "slt_common/point_cloud_registration/ndt_omp.hpp"
+#include "slt_common/point_cloud_registration/ndt.hpp"
 
 namespace slt_common
 {
@@ -35,8 +35,8 @@ std::shared_ptr<PointCloudRegistrationInterface> PointCloudRegistrationFactory::
     registration_ptr = std::make_shared<PclIcp>(config_node["PCL_ICP"]);
   } else if (method == "ICP_SVD") {
     registration_ptr = std::make_shared<IcpSvd>(config_node["ICP_SVD"]);
-  } else if (method == "NDT_OMP") {
-    registration_ptr = std::make_shared<NdtOmp>(config_node["NDT_OMP"]);
+  } else if (method == "NDT") {
+    registration_ptr = std::make_shared<Ndt>(config_node["NDT"]);
   } else {
     std::cerr << "Point cloud registration method " << method << " NOT FOUND!";
   }

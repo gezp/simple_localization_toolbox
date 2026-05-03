@@ -18,7 +18,6 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(slt_interface REQUIRED)
-find_package(ndt_omp_ros2 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
 find_package(GeographicLib REQUIRED)
@@ -39,7 +38,6 @@ set(dependencies
   sensor_msgs
   nav_msgs
   slt_interface
-  ndt_omp_ros2
 )
 add_library(${PROJECT_NAME} SHARED
   # publisher
@@ -66,7 +64,9 @@ add_library(${PROJECT_NAME} SHARED
   src/point_cloud_registration/pcl_icp.cpp
   src/point_cloud_registration/icp_svd.cpp
   src/point_cloud_registration/pcl_ndt.cpp
-  src/point_cloud_registration/ndt_omp.cpp
+  src/point_cloud_registration/ndt.cpp
+  src/point_cloud_registration/ndt/voxel_grid_covariance.cpp
+  src/point_cloud_registration/ndt/normal_distributions_transform.cpp
   src/point_cloud_registration/point_cloud_registration_factory.cpp
   # loam
   src/loam/loam_feature_extraction.cpp
