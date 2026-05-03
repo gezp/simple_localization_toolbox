@@ -14,14 +14,13 @@
 
 #pragma once
 
-#include <memory>
-
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <Eigen/Dense>
 #include <yaml-cpp/yaml.h>
 
-#include <Eigen/Dense>
+#include <memory>
 
 #include "slt_common/point_cloud_registration/ndt/normal_distributions_transform.hpp"
 #include "slt_common/point_cloud_registration/point_cloud_registration_interface.hpp"

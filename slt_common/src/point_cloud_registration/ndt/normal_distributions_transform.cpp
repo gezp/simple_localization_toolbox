@@ -17,13 +17,6 @@
 
 #include "slt_common/point_cloud_registration/ndt/normal_distributions_transform.hpp"
 
-#include <cmath>
-#include <vector>
-
-#include <pcl/common/transforms.h>
-
-#include <Eigen/Dense>
-
 namespace slt_common
 {
 
@@ -169,16 +162,17 @@ void NormalDistributionsTransform::computeTransformation(const Eigen::Matrix4f &
       (Eigen::Translation<float, 3>(
          static_cast<float>(delta_p(0)), static_cast<float>(delta_p(1)),
          static_cast<float>(delta_p(2))) *
-       Eigen::AngleAxis<float>(static_cast<float>(delta_p(3)), Eigen::Vector3f::UnitX()) *
-       Eigen::AngleAxis<float>(static_cast<float>(delta_p(4)), Eigen::Vector3f::UnitY()) *
-       Eigen::AngleAxis<float>(static_cast<float>(delta_p(5)), Eigen::Vector3f::UnitZ()))
-        .matrix();
+      Eigen::AngleAxis<float>(static_cast<float>(delta_p(3)), Eigen::Vector3f::UnitX()) *
+      Eigen::AngleAxis<float>(static_cast<float>(delta_p(4)), Eigen::Vector3f::UnitY()) *
+      Eigen::AngleAxis<float>(static_cast<float>(delta_p(5)), Eigen::Vector3f::UnitZ()))
+      .matrix();
 
     p = p + delta_p;
 
     if (
       nr_iterations_ > max_iterations_ ||
-      (nr_iterations_ && (std::fabs(delta_p_norm) < transformation_epsilon_))) {
+      (nr_iterations_ && (std::fabs(delta_p_norm) < transformation_epsilon_)))
+    {
       converged_ = true;
     }
 
@@ -193,10 +187,10 @@ void NormalDistributionsTransform::computeTransformation(const Eigen::Matrix4f &
   final_transformation_ =
     (Eigen::Translation<float, 3>(
        static_cast<float>(p(0)), static_cast<float>(p(1)), static_cast<float>(p(2))) *
-     Eigen::AngleAxis<float>(static_cast<float>(p(3)), Eigen::Vector3f::UnitX()) *
-     Eigen::AngleAxis<float>(static_cast<float>(p(4)), Eigen::Vector3f::UnitY()) *
-     Eigen::AngleAxis<float>(static_cast<float>(p(5)), Eigen::Vector3f::UnitZ()))
-      .matrix();
+    Eigen::AngleAxis<float>(static_cast<float>(p(3)), Eigen::Vector3f::UnitX()) *
+    Eigen::AngleAxis<float>(static_cast<float>(p(4)), Eigen::Vector3f::UnitY()) *
+    Eigen::AngleAxis<float>(static_cast<float>(p(5)), Eigen::Vector3f::UnitZ()))
+    .matrix();
 }
 
 double NormalDistributionsTransform::computeDerivatives(
@@ -254,7 +248,8 @@ double NormalDistributionsTransform::computeDerivatives(
     }
 
     for (auto neighborhood_it = neighborhood.begin(); neighborhood_it != neighborhood.end();
-         neighborhood_it++) {
+      neighborhood_it++)
+    {
       cell = *neighborhood_it;
       x_pt = input_->points[idx];
       x = Eigen::Vector3d(x_pt.x, x_pt.y, x_pt.z);
@@ -276,7 +271,7 @@ double NormalDistributionsTransform::computeDerivatives(
     }
   }
 
-  return (score);
+  return  score;
 }
 
 void NormalDistributionsTransform::computeAngleDerivatives(
@@ -505,7 +500,7 @@ double NormalDistributionsTransform::updateDerivatives(
   e_x_cov_x = gauss_d2 * e_x_cov_x;
 
   // Error checking for invalid values.
-  if (e_x_cov_x > 1 || e_x_cov_x < 0 || e_x_cov_x != e_x_cov_x) return (0);
+  if (e_x_cov_x > 1 || e_x_cov_x < 0 || e_x_cov_x != e_x_cov_x) {return  0;}
 
   // Reusable portion of Equation 6.12 and 6.13 [Magnusson 2009]
   e_x_cov_x *= static_cast<float>(gauss_d1_);
@@ -534,14 +529,14 @@ double NormalDistributionsTransform::updateDerivatives(
         hessian(i, j) +=
           e_x_cov_x *
           (-gauss_d2 * x_trans4_dot_c_inv4_x_point_gradient4(i) *
-             x_trans4_dot_c_inv4_x_point_gradient4(j) +
-           x_trans4_dot_c_inv4_x_ext_point_hessian_4ij(j) +
-           point_gradient4_colj_dot_c_inv4_x_point_gradient4_col_i(j, i));
+          x_trans4_dot_c_inv4_x_point_gradient4(j) +
+          x_trans4_dot_c_inv4_x_ext_point_hessian_4ij(j) +
+          point_gradient4_colj_dot_c_inv4_x_point_gradient4_col_i(j, i));
       }
     }
   }
 
-  return (score_inc);
+  return  score_inc;
 }
 
 void NormalDistributionsTransform::computeHessian(
@@ -567,7 +562,7 @@ void NormalDistributionsTransform::computeHessian(
 
   hessian.setZero();
 
-  // Precompute Angular Derivatives unnecessary because only used after regular derivative calculation
+  // Precompute angular derivatives (used after regular derivative calculation)
 
   // Update hessian for each point, line 17 in Algorithm 2 [Magnusson 2009]
   for (size_t idx = 0; idx < input_->points.size(); idx++) {
@@ -579,7 +574,8 @@ void NormalDistributionsTransform::computeHessian(
     target_cells_.radiusSearch(x_trans_pt, resolution_, neighborhood, distances);
 
     for (auto neighborhood_it = neighborhood.begin(); neighborhood_it != neighborhood.end();
-         neighborhood_it++) {
+      neighborhood_it++)
+    {
       cell = *neighborhood_it;
 
       {
@@ -616,7 +612,7 @@ void NormalDistributionsTransform::updateHessian(
   double e_x_cov_x = gauss_d2_ * exp(-gauss_d2_ * x_trans.dot(c_inv * x_trans) / 2);
 
   // Error checking for invalid values.
-  if (e_x_cov_x > 1 || e_x_cov_x < 0 || e_x_cov_x != e_x_cov_x) return;
+  if (e_x_cov_x > 1 || e_x_cov_x < 0 || e_x_cov_x != e_x_cov_x) {return;}
 
   // Reusable portion of Equation 6.12 and 6.13 [Magnusson 2009]
   e_x_cov_x *= gauss_d1_;
@@ -630,8 +626,8 @@ void NormalDistributionsTransform::updateHessian(
       hessian(i, j) +=
         e_x_cov_x *
         (-gauss_d2_ * x_trans.dot(cov_dxd_pi) * x_trans.dot(c_inv * point_gradient_.col(j)) +
-         x_trans.dot(c_inv * point_hessian_.block<3, 1>(3 * i, j)) +
-         point_gradient_.col(j).dot(cov_dxd_pi));
+        x_trans.dot(c_inv * point_hessian_.block<3, 1>(3 * i, j)) +
+        point_gradient_.col(j).dot(cov_dxd_pi));
     }
   }
 }
@@ -641,22 +637,18 @@ bool NormalDistributionsTransform::updateIntervalMT(
   double & a_u, double & f_u, double & g_u,
   double a_t, double f_t, double g_t)
 {
-  // Case U1 in Update Algorithm and Case a in Modified Update Algorithm [More, Thuente 1994]
+  // Case U1 [More, Thuente 1994]
   if (f_t > f_l) {
     a_u = a_t;
     f_u = f_t;
     g_u = g_t;
-    return (false);
-  }
-  // Case U2 in Update Algorithm and Case b in Modified Update Algorithm [More, Thuente 1994]
-  else if (g_t * (a_l - a_t) > 0) {
+    return  false;
+  } else if (g_t * (a_l - a_t) > 0) {
     a_l = a_t;
     f_l = f_t;
     g_l = g_t;
-    return (false);
-  }
-  // Case U3 in Update Algorithm and Case c in Modified Update Algorithm [More, Thuente 1994]
-  else if (g_t * (a_l - a_t) < 0) {
+    return  false;
+  } else if (g_t * (a_l - a_t) < 0) {
     a_u = a_l;
     f_u = f_l;
     g_u = g_l;
@@ -664,11 +656,10 @@ bool NormalDistributionsTransform::updateIntervalMT(
     a_l = a_t;
     f_l = f_t;
     g_l = g_t;
-    return (false);
+    return  false;
   }
   // Interval Converged
-  else
-    return (true);
+  return  true;
 }
 
 double NormalDistributionsTransform::trialValueSelectionMT(
@@ -689,13 +680,12 @@ double NormalDistributionsTransform::trialValueSelectionMT(
     // Equation 2.4.2 [Sun, Yuan 2006]
     double a_q = a_l - 0.5 * (a_l - a_t) * g_l / (g_l - (f_l - f_t) / (a_l - a_t));
 
-    if (std::fabs(a_c - a_l) < std::fabs(a_q - a_l))
-      return (a_c);
-    else
-      return (0.5 * (a_q + a_c));
-  }
-  // Case 2 in Trial Value Selection [More, Thuente 1994]
-  else if (g_t * g_l < 0) {
+    if (std::fabs(a_c - a_l) < std::fabs(a_q - a_l)) {
+      return  a_c;
+    } else {
+      return  0.5 * (a_q + a_c);
+    }
+  } else if (g_t * g_l < 0) {
     // Calculate the minimizer of the cubic that interpolates f_l, f_t, g_l and g_t
     // Equation 2.4.52 [Sun, Yuan 2006]
     double z = 3 * (f_t - f_l) / (a_t - a_l) - g_t - g_l;
@@ -707,13 +697,12 @@ double NormalDistributionsTransform::trialValueSelectionMT(
     // Equation 2.4.5 [Sun, Yuan 2006]
     double a_s = a_l - (a_l - a_t) / (g_l - g_t) * g_l;
 
-    if (std::fabs(a_c - a_t) >= std::fabs(a_s - a_t))
-      return (a_c);
-    else
-      return (a_s);
-  }
-  // Case 3 in Trial Value Selection [More, Thuente 1994]
-  else if (std::fabs(g_t) <= std::fabs(g_l)) {
+    if (std::fabs(a_c - a_t) >= std::fabs(a_s - a_t)) {
+      return  a_c;
+    } else {
+      return  a_s;
+    }
+  } else if (std::fabs(g_t) <= std::fabs(g_l)) {
     // Calculate the minimizer of the cubic that interpolates f_l, f_t, g_l and g_t
     // Equation 2.4.52 [Sun, Yuan 2006]
     double z = 3 * (f_t - f_l) / (a_t - a_l) - g_t - g_l;
@@ -726,24 +715,24 @@ double NormalDistributionsTransform::trialValueSelectionMT(
 
     double a_t_next;
 
-    if (std::fabs(a_c - a_t) < std::fabs(a_s - a_t))
+    if (std::fabs(a_c - a_t) < std::fabs(a_s - a_t)) {
       a_t_next = a_c;
-    else
+    } else {
       a_t_next = a_s;
+    }
 
-    if (a_t > a_l)
-      return (std::min(a_t + 0.66 * (a_u - a_t), a_t_next));
-    else
-      return (std::max(a_t + 0.66 * (a_u - a_t), a_t_next));
-  }
-  // Case 4 in Trial Value Selection [More, Thuente 1994]
-  else {
+    if (a_t > a_l) {
+      return  std::min(a_t + 0.66 * (a_u - a_t), a_t_next);
+    } else {
+      return  std::max(a_t + 0.66 * (a_u - a_t), a_t_next);
+    }
+  } else {
     // Calculate the minimizer of the cubic that interpolates f_u, f_t, g_u and g_t
     // Equation 2.4.52 [Sun, Yuan 2006]
     double z = 3 * (f_t - f_u) / (a_t - a_u) - g_t - g_u;
     double w = std::sqrt(z * z - g_t * g_u);
     // Equation 2.4.56 [Sun, Yuan 2006]
-    return (a_u + (a_t - a_u) * (w - g_u - z) / (g_t - g_u + 2 * w));
+    return  a_u + (a_t - a_u) * (w - g_u - z) / (g_t - g_u + 2 * w);
   }
 }
 
@@ -767,9 +756,9 @@ double NormalDistributionsTransform::computeStepLengthMT(
 
   if (d_phi_0 >= 0) {
     // Not a descent direction
-    if (d_phi_0 == 0)
+    if (d_phi_0 == 0) {
       return 0;
-    else {
+    } else {
       // Reverse step direction and calculate optimal step.
       d_phi_0 *= -1;
       step_dir *= -1;
@@ -810,10 +799,10 @@ double NormalDistributionsTransform::computeStepLengthMT(
   final_transformation_ =
     (Eigen::Translation<float, 3>(
        static_cast<float>(x_t(0)), static_cast<float>(x_t(1)), static_cast<float>(x_t(2))) *
-     Eigen::AngleAxis<float>(static_cast<float>(x_t(3)), Eigen::Vector3f::UnitX()) *
-     Eigen::AngleAxis<float>(static_cast<float>(x_t(4)), Eigen::Vector3f::UnitY()) *
-     Eigen::AngleAxis<float>(static_cast<float>(x_t(5)), Eigen::Vector3f::UnitZ()))
-      .matrix();
+    Eigen::AngleAxis<float>(static_cast<float>(x_t(3)), Eigen::Vector3f::UnitX()) *
+    Eigen::AngleAxis<float>(static_cast<float>(x_t(4)), Eigen::Vector3f::UnitY()) *
+    Eigen::AngleAxis<float>(static_cast<float>(x_t(5)), Eigen::Vector3f::UnitZ()))
+    .matrix();
 
   // New transformed point cloud
   pcl::transformPointCloud(*input_, trans_cloud, final_transformation_);
@@ -837,7 +826,8 @@ double NormalDistributionsTransform::computeStepLengthMT(
   // sufficient decrease, Equation 1.1, and curvature condition, Equation 1.2 [More, Thuente 1994]
   while (
     !interval_converged && step_iterations < max_step_iterations &&
-    !(psi_t <= 0 /*Sufficient Decrease*/ && d_phi_t <= -nu * d_phi_0 /*Curvature Condition*/)) {
+    !(psi_t <= 0 /*Sufficient Decrease*/ && d_phi_t <= -nu * d_phi_0 /*Curvature Condition*/))
+  {
     // Use auxiliary function if interval I is not closed
     if (open_interval) {
       a_t = trialValueSelectionMT(
@@ -855,10 +845,10 @@ double NormalDistributionsTransform::computeStepLengthMT(
     final_transformation_ =
       (Eigen::Translation<float, 3>(
          static_cast<float>(x_t(0)), static_cast<float>(x_t(1)), static_cast<float>(x_t(2))) *
-       Eigen::AngleAxis<float>(static_cast<float>(x_t(3)), Eigen::Vector3f::UnitX()) *
-       Eigen::AngleAxis<float>(static_cast<float>(x_t(4)), Eigen::Vector3f::UnitY()) *
-       Eigen::AngleAxis<float>(static_cast<float>(x_t(5)), Eigen::Vector3f::UnitZ()))
-        .matrix();
+      Eigen::AngleAxis<float>(static_cast<float>(x_t(3)), Eigen::Vector3f::UnitX()) *
+      Eigen::AngleAxis<float>(static_cast<float>(x_t(4)), Eigen::Vector3f::UnitY()) *
+      Eigen::AngleAxis<float>(static_cast<float>(x_t(5)), Eigen::Vector3f::UnitZ()))
+      .matrix();
 
     // New transformed point cloud
     // Done on final cloud to prevent wasted computation
@@ -906,9 +896,9 @@ double NormalDistributionsTransform::computeStepLengthMT(
   // If inner loop was run then hessian needs to be calculated.
   // Hessian is unnecessary for step length determination but gradients are required
   // so derivative and transform data is stored for the next iteration.
-  if (step_iterations) computeHessian(hessian, trans_cloud, x_t);
+  if (step_iterations) {computeHessian(hessian, trans_cloud, x_t);}
 
-  return (a_t);
+  return  a_t;
 }
 
 double NormalDistributionsTransform::calculateScore(const PointCloud & trans_cloud) const
@@ -924,7 +914,8 @@ double NormalDistributionsTransform::calculateScore(const PointCloud & trans_clo
     target_cells_.radiusSearch(x_trans_pt, resolution_, neighborhood, distances);
 
     for (auto neighborhood_it = neighborhood.begin(); neighborhood_it != neighborhood.end();
-         neighborhood_it++) {
+      neighborhood_it++)
+    {
       TargetGridLeafConstPtr cell = *neighborhood_it;
 
       Eigen::Vector3d x_trans = Eigen::Vector3d(x_trans_pt.x, x_trans_pt.y, x_trans_pt.z);

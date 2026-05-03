@@ -55,16 +55,16 @@
 
 #pragma once
 
-#include <cmath>
-#include <memory>
-#include <vector>
-
 #include <pcl/common/transforms.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
 #include <Eigen/Dense>
 #include <unsupported/Eigen/NonLinearOptimization>
+
+#include <cmath>
+#include <memory>
+#include <vector>
 
 #include "slt_common/point_cloud_registration/ndt/voxel_grid_covariance.hpp"
 
@@ -120,7 +120,7 @@ public:
   /** \brief Provide a pointer to the input source (e.g., the point cloud to be transformed).
     * \param[in] cloud the input point cloud source
     */
-  void setInputSource(const PointCloudConstPtr & cloud) { input_ = cloud; }
+  void setInputSource(const PointCloudConstPtr & cloud) {input_ = cloud;}
 
   /** \brief Provide a pointer to the input target (e.g., the point cloud that we want to align the input source to).
     * \param[in] cloud the input point cloud target
@@ -139,47 +139,47 @@ public:
   /** \brief Get voxel grid resolution.
     * \return side length of voxels
     */
-  float getResolution() const { return resolution_; }
+  float getResolution() const {return resolution_;}
 
   /** \brief Set/change the newton line search maximum step length.
     * \param[in] step_size maximum step length
     */
-  void setStepSize(double step_size) { step_size_ = step_size; }
+  void setStepSize(double step_size) {step_size_ = step_size;}
 
   /** \brief Get the newton line search maximum step length.
     * \return maximum step length
     */
-  double getStepSize() const { return step_size_; }
+  double getStepSize() const {return step_size_;}
 
   /** \brief Set the transformation epsilon (maximum allowable transformation epsilon).
     * \param[in] eps the transformation epsilon
     */
-  void setTransformationEpsilon(double eps) { transformation_epsilon_ = eps; }
+  void setTransformationEpsilon(double eps) {transformation_epsilon_ = eps;}
 
   /** \brief Get the transformation epsilon (maximum allowable transformation epsilon).
     * \return the transformation epsilon
     */
-  double getTransformationEpsilon() const { return transformation_epsilon_; }
+  double getTransformationEpsilon() const {return transformation_epsilon_;}
 
   /** \brief Set the maximum number of iterations.
     * \param[in] max_iter the maximum number of iterations
     */
-  void setMaximumIterations(int max_iter) { max_iterations_ = max_iter; }
+  void setMaximumIterations(int max_iter) {max_iterations_ = max_iter;}
 
   /** \brief Get the maximum number of iterations.
     * \return the maximum number of iterations the internal optimization should run for
     */
-  int getMaximumIterations() const { return max_iterations_; }
+  int getMaximumIterations() const {return max_iterations_;}
 
   /** \brief Set/change the point cloud outlier ratio.
     * \param[in] outlier_ratio outlier ratio
     */
-  void setOulierRatio(double outlier_ratio) { outlier_ratio_ = outlier_ratio; }
+  void setOulierRatio(double outlier_ratio) {outlier_ratio_ = outlier_ratio;}
 
   /** \brief Set the method to use for finding neighboring voxels.
     * \param[in] method the neighbor search method
     */
-  void setNeighborhoodSearchMethod(NeighborSearchMethod method) { search_method_ = method; }
+  void setNeighborhoodSearchMethod(NeighborSearchMethod method) {search_method_ = method;}
 
   /** \brief Align the input source to the target using an initial guess.
     * \param[in] guess the initial gross estimation of the transformation
@@ -190,17 +190,17 @@ public:
   /** \brief Get the final transformation matrix.
     * \return the final transformation matrix
     */
-  Eigen::Matrix4f getFinalTransformation() const { return final_transformation_; }
+  Eigen::Matrix4f getFinalTransformation() const {return final_transformation_;}
 
   /** \brief Get the fitness score of the alignment.
     * \return the fitness score (negative log-likelihood per point)
     */
-  double getFitnessScore() const { return calculateScore(*input_); }
+  double getFitnessScore() const {return calculateScore(*input_);}
 
   /** \brief Get the number of iterations required to calculate alignment.
     * \return final number of iterations
     */
-  int getFinalNumIteration() const { return nr_iterations_; }
+  int getFinalNumIteration() const {return nr_iterations_;}
 
   /** \brief Convert 6 element transformation vector to affine transformation.
     * \param[in] x transformation vector of the form [x, y, z, roll, pitch, yaw]
@@ -208,10 +208,12 @@ public:
     */
   static void convertTransform(const Eigen::Matrix<double, 6, 1> & x, Eigen::Affine3f & trans)
   {
-    trans = Eigen::Translation<float, 3>(float(x(0)), float(x(1)), float(x(2))) *
-      Eigen::AngleAxis<float>(float(x(3)), Eigen::Vector3f::UnitX()) *
-      Eigen::AngleAxis<float>(float(x(4)), Eigen::Vector3f::UnitY()) *
-      Eigen::AngleAxis<float>(float(x(5)), Eigen::Vector3f::UnitZ());
+    trans = Eigen::Translation<float, 3>(
+                static_cast<float>(x(0)), static_cast<float>(x(1)),
+                static_cast<float>(x(2))) *
+      Eigen::AngleAxis<float>(static_cast<float>(x(3)), Eigen::Vector3f::UnitX()) *
+      Eigen::AngleAxis<float>(static_cast<float>(x(4)), Eigen::Vector3f::UnitY()) *
+      Eigen::AngleAxis<float>(static_cast<float>(x(5)), Eigen::Vector3f::UnitZ());
   }
 
   /** \brief Convert 6 element transformation vector to transformation matrix.
@@ -385,7 +387,7 @@ private:
   double auxilaryFunction_PsiMT(
     double a, double f_a, double f_0, double g_0, double mu = 1.e-4)
   {
-    return (f_a - f_0 - mu * g_0 * a);
+    return  f_a - f_0 - mu * g_0 * a;
   }
 
   /** \brief Auxiliary function derivative for More-Thuente interval determination.
@@ -396,7 +398,7 @@ private:
     */
   double auxilaryFunction_dPsiMT(double g_a, double g_0, double mu = 1.e-4)
   {
-    return (g_a - mu * g_0);
+    return  g_a - mu * g_0;
   }
 
 private:
@@ -409,13 +411,13 @@ private:
   /** \brief The maximum step length. */
   double step_size_;
 
-  /** \brief The ratio of outliers of points w.r.t. a normal distribution, Equation 6.7 [Magnusson 2009]. */
+  /** \brief Outlier ratio, Eq. 6.7 [Magnusson 2009]. */
   double outlier_ratio_;
 
-  /** \brief The normalization constants used fit the point distribution to a normal distribution, Equation 6.8 [Magnusson 2009]. */
+  /** \brief Normalization constants, Eq. 6.8 [Magnusson 2009]. */
   double gauss_d1_, gauss_d2_, gauss_d3_;
 
-  /** \brief The probability score of the transform applied to the input cloud, Equation 6.9 and 6.10 [Magnusson 2009]. */
+  /** \brief Transformation probability score, Eq. 6.9 & 6.10 [Magnusson 2009]. */
   double trans_probability_;
 
   /** \brief Precomputed Angular Gradient
