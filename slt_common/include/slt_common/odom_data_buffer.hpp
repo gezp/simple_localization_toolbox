@@ -44,7 +44,7 @@ public:
   void set_max_buffer_size(size_t max_buffer_size);
 
 private:
-  std::map<double, slt_common::OdomData> buffer_;
+  std::map<int64_t, slt_common::OdomData> buffer_;
   size_t max_buffer_size_;
 };
 }  // namespace slt_common
