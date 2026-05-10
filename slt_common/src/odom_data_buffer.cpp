@@ -23,7 +23,7 @@ OdomDataBuffer::OdomDataBuffer(size_t max_buffer_size) {max_buffer_size_ = max_b
 
 void OdomDataBuffer::add_data(const OdomData & data)
 {
-  buffer_.insert({static_cast<int64_t>(data.time), data});
+  buffer_.insert({static_cast<int64_t>(data.time * 1000000), data});
   if (buffer_.size() > max_buffer_size_) {
     buffer_.erase(buffer_.begin());
   }
@@ -31,7 +31,7 @@ void OdomDataBuffer::add_data(const OdomData & data)
 
 bool OdomDataBuffer::get_data(double time, OdomData & data)
 {
-  if (auto it = buffer_.find(static_cast<int64_t>(time)); it != buffer_.end()) {
+  if (auto it = buffer_.find(static_cast<int64_t>(time * 1000000)); it != buffer_.end()) {
     data = it->second;
     return true;
   }
@@ -43,7 +43,7 @@ bool OdomDataBuffer::get_nearest_data(double time, OdomData & data)
   if (buffer_.empty()) {
     return false;
   }
-  int64_t time_us = static_cast<int64_t>(time);
+  int64_t time_us = static_cast<int64_t>(time * 1000000);
   auto cur = buffer_.lower_bound(time_us);
   if (cur == buffer_.end()) {
     // the last
@@ -68,7 +68,7 @@ bool OdomDataBuffer::get_interpolated_data(double time, OdomData & data)
   if (buffer_.empty()) {
     return false;
   }
-  int64_t time_us = static_cast<int64_t>(time);
+  int64_t time_us = static_cast<int64_t>(time * 1000000);
   if (time_us < buffer_.begin()->first || time_us > buffer_.rbegin()->first) {
     return false;
   }
@@ -104,7 +104,7 @@ double OdomDataBuffer::get_start_time()
   if (buffer_.empty()) {
     return -1;
   }
-  return static_cast<double>(buffer_.begin()->first);
+  return static_cast<double>(buffer_.begin()->first) / 1000000.0;
 }
 
 double OdomDataBuffer::get_end_time()
@@ -112,19 +112,19 @@ double OdomDataBuffer::get_end_time()
   if (buffer_.empty()) {
     return -1;
   }
-  return static_cast<double>(buffer_.rbegin()->first);
+  return static_cast<double>(buffer_.rbegin()->first) / 1000000.0;
 }
 
 void OdomDataBuffer::remove(double time)
 {
-  if (auto it = buffer_.find(static_cast<int64_t>(time)); it != buffer_.end()) {
+  if (auto it = buffer_.find(static_cast<int64_t>(time * 1000000)); it != buffer_.end()) {
     buffer_.erase(it);
   }
 }
 
 void OdomDataBuffer::remove_before(double time)
 {
-  auto cur = buffer_.lower_bound(static_cast<int64_t>(time));
+  auto cur = buffer_.lower_bound(static_cast<int64_t>(time * 1000000));
   if (cur != buffer_.begin()) {
     cur--;
     buffer_.erase(buffer_.begin(), cur);
@@ -133,7 +133,7 @@ void OdomDataBuffer::remove_before(double time)
 
 void OdomDataBuffer::remove_after(double time)
 {
-  auto cur = buffer_.upper_bound(static_cast<int64_t>(time));
+  auto cur = buffer_.upper_bound(static_cast<int64_t>(time * 1000000));
   buffer_.erase(cur, buffer_.end());
 }
 
