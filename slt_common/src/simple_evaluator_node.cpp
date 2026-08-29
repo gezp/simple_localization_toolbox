@@ -60,10 +60,13 @@ SimpleEvaluatorNode::SimpleEvaluatorNode(rclcpp::Node::SharedPtr node)
     auto odom_sub = std::make_shared<OdometrySubscriber>(node, odom_topics_[i], 10000);
     odom_subs_.push_back(odom_sub);
     odom_data_buffers_.push_back(OdomDataBuffer());
+    map_odom_tf_published_.push_back(false);
     RCLCPP_INFO(
       node->get_logger(), "record odom[%s] on topic:%s", odom_names_[i].c_str(),
       odom_topics_[i].c_str());
   }
+  // alignment tf
+  static_tf_pub_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
   // reference_odom
   for (size_t i = 0; i < odom_names_.size(); i++) {
     if (odom_names_[i] == reference_odom_name) {
@@ -110,11 +113,35 @@ bool SimpleEvaluatorNode::run()
     for (auto & data : odom_buffer) {
       odom_data_buffers_[i].add_data(data);
     }
+    if (!map_odom_tf_published_[i] && !odom_buffer.empty() && i != reference_odom_index_) {
+      map_odom_tf_published_[i] = publish_map_odom_tf(odom_names_[i], odom_buffer.front());
+    }
   }
   if (save_odometry_flag_) {
     save_trajectory();
     save_odometry_flag_ = false;
   }
+  return true;
+}
+
+bool SimpleEvaluatorNode::publish_map_odom_tf(const std::string & odom_name, const OdomData & odom)
+{
+  // align first odom pose to reference at same timestamp
+  OdomData ref_odom;
+  if (!odom_data_buffers_[reference_odom_index_].get_interpolated_data(odom.time, ref_odom)) {
+    // wait reference data
+    return false;
+  }
+  Eigen::Matrix4d T_map_odom = ref_odom.pose * odom.pose.inverse();
+  geometry_msgs::msg::TransformStamped msg;
+  msg.header.frame_id = map_frame_id_;
+  msg.child_frame_id = odom_name;
+  msg.transform = to_transform_msg(T_map_odom);
+  static_tf_pub_->sendTransform(msg);
+  Eigen::Vector3d p = T_map_odom.block<3, 1>(0, 3);
+  RCLCPP_INFO(
+    node_->get_logger(), "publish static tf %s -> %s at position: (%lf, %lf, %lf)",
+    msg.header.frame_id.c_str(), msg.child_frame_id.c_str(), p.x(), p.y(), p.z());
   return true;
 }
 
@@ -125,7 +152,7 @@ void SimpleEvaluatorNode::save_pose(std::ofstream & ofs, const OdomData & odom)
   Eigen::Vector3d t = odom.pose.block<3, 1>(0, 3);
   Eigen::Quaterniond q = Eigen::Quaterniond(odom.pose.block<3, 3>(0, 0));
   ofs << odom.time << " " << t.x() << " " << t.y() << " " << t.z() << " ";
-  ofs << q.x() << " " << q.x() << " " << q.z() << " " << q.w() << std::endl;
+  ofs << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << std::endl;
 }
 
 bool SimpleEvaluatorNode::save_trajectory()

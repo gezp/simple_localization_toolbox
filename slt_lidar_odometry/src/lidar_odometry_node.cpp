@@ -32,18 +32,18 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   std::string lidar_odometry_config;
   node->declare_parameter("lidar_odometry_config", lidar_odometry_config);
   node->declare_parameter("publish_tf", publish_tf_);
-  node->declare_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
   node->declare_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->declare_parameter("publish_undistorted_point_cloud", publish_undistorted_point_cloud_);
   node->declare_parameter("base_frame_id", base_frame_id_);
   node->declare_parameter("lidar_frame_id", lidar_frame_id_);
+  node->declare_parameter("odom_frame_id", odom_frame_id_);
   node->get_parameter("lidar_odometry_config", lidar_odometry_config);
   node->get_parameter("publish_tf", publish_tf_);
-  node->get_parameter("use_initial_pose_from_topic", use_initial_pose_from_topic_);
   node->get_parameter("undistort_point_cloud", undistort_point_cloud_);
   node->get_parameter("publish_undistorted_point_cloud", publish_undistorted_point_cloud_);
   node->get_parameter("base_frame_id", base_frame_id_);
   node->get_parameter("lidar_frame_id", lidar_frame_id_);
+  node->get_parameter("odom_frame_id", odom_frame_id_);
   RCLCPP_INFO(node->get_logger(), "lidar_odometry_config: [%s]", lidar_odometry_config.c_str());
   if (lidar_odometry_config == "" || (!std::filesystem::exists(lidar_odometry_config))) {
     RCLCPP_FATAL(node->get_logger(), "lidar_odometry_config is invalid");
@@ -67,20 +67,16 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   elapsed_time_statistics_.set_title("LidarOdometryNode");
   // sub & pub
   cloud_sub_ = std::make_shared<slt_common::CloudSubscriber>(node, "synced_cloud", 10000);
-  if (use_initial_pose_from_topic_) {
-    reference_odom_sub_ =
-      std::make_shared<slt_common::OdometrySubscriber>(node, "reference_odom", 10000);
-  }
   undistorted_scan_pub_ = std::make_shared<slt_common::CloudPublisher>(
     node, "lidar_odometry/undistorted_pointcloud", lidar_frame_id_, 100);
-  current_scan_pub_ =
-    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/current_scan", "map", 100);
-  local_map_pub_ =
-    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/local_map", "map", 100);
-  loam_feature_pub_ =
-    std::make_shared<slt_common::CloudPublisher>(node, "lidar_odometry/loam_feature", "map", 100);
+  current_scan_pub_ = std::make_shared<slt_common::CloudPublisher>(
+    node, "lidar_odometry/current_scan", odom_frame_id_, 100);
+  local_map_pub_ = std::make_shared<slt_common::CloudPublisher>(
+    node, "lidar_odometry/local_map", odom_frame_id_, 100);
+  loam_feature_pub_ = std::make_shared<slt_common::CloudPublisher>(
+    node, "lidar_odometry/loam_feature", odom_frame_id_, 100);
   lidar_odom_pub_ = std::make_shared<slt_common::OdometryPublisher>(
-    node, "lidar_odometry/odom", "map", base_frame_id_, 100);
+    node, "lidar_odometry/odom", odom_frame_id_, base_frame_id_, 100);
   if (publish_tf_) {
     tf_pub_ = std::make_shared<tf2_ros::TransformBroadcaster>(node);
     lidar_odom_pub_->set_tf_broadcaster(tf_pub_);
@@ -88,8 +84,6 @@ LidarOdometryNode::LidarOdometryNode(rclcpp::Node::SharedPtr node)
   // extrinsics
   extrinsics_manager_ = std::make_shared<slt_common::ExtrinsicsManager>(node);
   extrinsics_manager_->enable_tf_listener();
-  // buffer
-  ref_odom_buffer_ = std::make_shared<slt_common::OdomDataBuffer>(10000);
   // process loop callback
   run_thread_ = std::make_unique<std::thread>(
     [this]() {
@@ -125,59 +119,12 @@ bool LidarOdometryNode::run()
   if (lidar_data_buffer_.empty()) {
     return false;
   }
-  // set initial pose for better visualization
-  if (use_initial_pose_from_topic_ && !inited_) {
-    bool is_old_data = false;
-    double time = lidar_data_buffer_.front().time;
-    if (!get_initial_pose_by_reference_odom(time, T_map_odom_, is_old_data)) {
-      if (is_old_data) {
-        lidar_data_buffer_.pop_front();
-      }
-      return false;
-    }
-    inited_ = true;
-  }
   // process lidar data
   if (update_odometry(odometry_method_, lidar_data_buffer_.front())) {
     publish_data(odometry_method_);
   }
   lidar_data_buffer_.pop_front();
   elapsed_time_statistics_.print_all_info("update_odometry", 100);
-  return true;
-}
-
-bool LidarOdometryNode::get_initial_pose_by_reference_odom(
-  double time, Eigen::Matrix4d & initial_pose, bool & is_old_data)
-{
-  // read reference_odom data
-  std::deque<slt_common::OdomData> buffer;
-  reference_odom_sub_->parse_data(buffer);
-  for (auto & data : buffer) {
-    ref_odom_buffer_->add_data(data);
-  }
-  // check
-  is_old_data = false;
-  if (ref_odom_buffer_->size() == 0) {
-    return false;
-  }
-  if (time < ref_odom_buffer_->get_start_time()) {
-    is_old_data = true;
-    std::cout << "need drop oldest lidar data" << std::endl;
-    return false;
-  }
-  if (time > ref_odom_buffer_->get_end_time()) {
-    // wait valid ref odom
-    return false;
-  }
-  // get synced odom
-  slt_common::OdomData odom;
-  if (!ref_odom_buffer_->get_interpolated_data(time, odom)) {
-    return false;
-  }
-  initial_pose = odom.pose;
-  Eigen::Vector3d p = odom.pose.block<3, 1>(0, 3);
-  RCLCPP_INFO(node_->get_logger(), "initialize at position: (%lf, %lf, %lf)", p.x(), p.y(), p.z());
-  reference_odom_sub_.reset();
   return true;
 }
 
@@ -211,23 +158,13 @@ bool LidarOdometryNode::update_odometry(OdometryMethod method, slt_common::Lidar
   return success;
 }
 
-slt_common::OdomData LidarOdometryNode::align_odom_to_map(const slt_common::OdomData & odom)
-{
-  slt_common::OdomData odom_aligned;
-  odom_aligned.time = odom.time;
-  odom_aligned.pose = T_map_odom_ * odom.pose;
-  odom_aligned.linear_velocity = T_map_odom_.block<3, 3>(0, 0) * odom.linear_velocity;
-  odom_aligned.angular_velocity = T_map_odom_.block<3, 3>(0, 0) * odom.angular_velocity;
-  return odom_aligned;
-}
-
 void LidarOdometryNode::publish_data(OdometryMethod method)
 {
   elapsed_time_statistics_.tic("publish_data");
   slt_common::OdomData odom;
   if (method == OdometryMethod::Simple) {
     // publish odom
-    odom = align_odom_to_map(simple_odometry_->get_current_odom());
+    odom = simple_odometry_->get_current_odom();
     lidar_odom_pub_->publish(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
@@ -236,13 +173,11 @@ void LidarOdometryNode::publish_data(OdometryMethod method)
       current_scan_pub_->publish(*current_scan);
     }
     if (simple_odometry_->has_new_local_map() && local_map_pub_->has_subscribers()) {
-      auto local_map = simple_odometry_->get_local_map();
-      pcl::transformPointCloud(*local_map, *local_map, T_map_odom_);
-      local_map_pub_->publish(*local_map);
+      local_map_pub_->publish(*simple_odometry_->get_local_map());
     }
   } else if (method == OdometryMethod::Loam) {
     // publish odom
-    odom = align_odom_to_map(loam_odometry_->get_current_odom());
+    odom = loam_odometry_->get_current_odom();
     lidar_odom_pub_->publish(odom);
     // publish point cloud
     if (current_scan_pub_->has_subscribers()) {
