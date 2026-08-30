@@ -53,9 +53,9 @@ global_localization:
     coarse_matching_yaw_count: 12
     coarse_matching_error_threshold: 1.0
     coarse_registration:
-        method: NDT
+        method: PCL_NDT
         PCL_NDT:
-            res : 1.0
+            res : 10.0
             step_size : 0.1
             trans_eps : 0.01
             max_iter : 10

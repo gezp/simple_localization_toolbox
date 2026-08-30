@@ -91,22 +91,21 @@ bool LidarLocalization::update(const slt_common::LidarData & lidar_data)
 {
   has_new_local_map_ = false;
   current_lidar_data_ = lidar_data;
-  // initialize if not
+  // get predict pose
+  Eigen::Matrix4d predict_pose = Eigen::Matrix4d::Identity();
   if (!has_inited_) {
-    if (init_global_localization()) {
-      history_frames_.push_back(current_lidar_frame_);
-      has_new_local_map_ = true;
-      has_inited_ = true;
-      return true;
-    } else {
+    // initialize if not
+    if (!init_global_localization(predict_pose)) {
+      std::cout << "failed to get predict pose by global_localization" << std::endl;
+      return false;
+    }
+  } else {
+    if (!get_initial_pose_by_history(predict_pose)) {
+      std::cout << "failed to get predict pose by history" << std::endl;
       return false;
     }
   }
-  // scan to map macthing
-  Eigen::Matrix4d predict_pose = Eigen::Matrix4d::Identity();
-  if (!get_initial_pose_by_history(predict_pose)) {
-    std::cout << "failed to get predict pose by history" << std::endl;
-  }
+  // scan to map matching
   match_scan_to_map(predict_pose);
   // add into lidar frame history
   history_frames_.push_back(current_lidar_frame_);
@@ -117,8 +116,8 @@ bool LidarLocalization::update(const slt_common::LidarData & lidar_data)
   if (check_new_local_map(current_lidar_frame_.pose)) {
     const Eigen::Vector3d & position = current_lidar_frame_.pose.block<3, 1>(0, 3);
     update_local_map(position);
-    has_new_local_map_ = true;
   }
+  has_inited_ = true;
   return true;
 }
 
@@ -204,6 +203,7 @@ bool LidarLocalization::update_local_map(const Eigen::Vector3d & position)
   local_map_ = local_map_filter_->apply(local_map_);
   // set registration target
   registration_->set_target(local_map_);
+  has_new_local_map_ = true;
   return true;
 }
 
@@ -350,35 +350,30 @@ bool LidarLocalization::get_initial_pose_by_gnss_odometry(Eigen::Matrix4d & init
   return true;
 }
 
-bool LidarLocalization::init_global_localization()
+bool LidarLocalization::init_global_localization(Eigen::Matrix4d & global_pose)
 {
-  Eigen::Matrix4d initial_pose;
   // 1. try to get initial pose by scan context
   bool success = false;
   if (!success && use_scan_context_) {
-    success = get_initial_pose_by_scan_context(initial_pose);
+    success = get_initial_pose_by_scan_context(global_pose);
   }
   // 2. try to get initial pose by gnss odometry
   if (!success && use_gnss_odometry_) {
-    success = get_initial_pose_by_gnss_odometry(initial_pose);
+    success = get_initial_pose_by_gnss_odometry(global_pose);
   }
   // 3. try to get initial pose by gnss data
   if (!success && use_gnss_data_) {
-    success = get_initial_pose_by_gnss_data(initial_pose);
+    success = get_initial_pose_by_gnss_data(global_pose);
   }
   if (!success) {
     std::cout << "failed to get initial pose!" << std::endl;
     return false;
   }
   // reset local map
-  update_local_map(initial_pose.block<3, 1>(0, 3));
-  // match lidar data
-  match_scan_to_map(initial_pose);
+  update_local_map(global_pose.block<3, 1>(0, 3));
   // debug info
   std::cout << "successed to initialize global localization." << std::endl
-            << " initial position: " << initial_pose.block<3, 1>(0, 3).transpose() << std::endl
-            << " final position  : " << current_lidar_frame_.pose.block<3, 1>(0, 3).transpose()
-            << std::endl;
+            << " initial position: " << global_pose.block<3, 1>(0, 3).transpose() << std::endl;
   return true;
 }
 
