@@ -23,7 +23,7 @@
 namespace slt_lidar_locator
 {
 LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
-  : node_(node)
+: node_(node)
 {
   std::string lidar_locator_config;
   std::string data_path;
