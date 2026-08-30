@@ -23,6 +23,7 @@
 namespace slt_lidar_locator
 {
 LidarLocalizationNode::LidarLocalizationNode(rclcpp::Node::SharedPtr node)
+: node_(node)
 {
   std::string lidar_locator_config;
   std::string data_path;
@@ -100,6 +101,12 @@ bool LidarLocalizationNode::run()
   static bool global_map_published = false;
   if (!global_map_published && global_map_pub_->has_subscribers()) {
     auto global_map = lidar_locator_->get_global_map();
+    if (!global_map) {
+      RCLCPP_WARN(node_->get_logger(), "global map is null, skip");
+      return false;
+    }
+    RCLCPP_INFO(
+      node_->get_logger(), "publish global map with %zu points", global_map->size());
     global_map_pub_->publish(*global_map);
     global_map_published = true;
   }
@@ -133,7 +140,21 @@ bool LidarLocalizationNode::run()
       slt_common::undistort_point_cloud(current_lidar_data, last_twist_);
     }
     if (lidar_locator_->update(current_lidar_data)) {
-      publish_data();
+      auto odom = lidar_locator_->get_current_odom();
+      last_twist_ = slt_common::get_twist_from_odom(odom);
+      // publish lidar pose
+      lidar_pose_pub_->publish(odom);
+      // puslish point cloud
+      if (current_scan_pub_->has_subscribers()) {
+        current_scan_pub_->publish(*lidar_locator_->get_current_scan());
+      }
+    }
+    // puslish localmap
+    if (lidar_locator_->has_new_local_map() && local_map_pub_->has_subscribers()) {
+      auto local_map = lidar_locator_->get_local_map();
+      RCLCPP_INFO(
+        node_->get_logger(), "publish local map with %zu points", local_map->size());
+      local_map_pub_->publish(*local_map);
     }
     lidar_data_buffer_.pop_front();
     return true;
@@ -146,22 +167,6 @@ bool LidarLocalizationNode::read_data()
   cloud_sub_->parse_data(lidar_data_buffer_);
   gnss_data_sub_->parse_data(gnss_data_buffer_);
   gnss_odom_sub_->parse_data(gnss_odom_buffer_);
-  return true;
-}
-
-bool LidarLocalizationNode::publish_data()
-{
-  // publish lidar pose
-  auto odom = lidar_locator_->get_current_odom();
-  lidar_pose_pub_->publish(odom);
-  last_twist_ = slt_common::get_twist_from_odom(odom);
-  // puslish point cloud
-  if (current_scan_pub_->has_subscribers()) {
-    current_scan_pub_->publish(*lidar_locator_->get_current_scan());
-  }
-  if (lidar_locator_->has_new_local_map() && local_map_pub_->has_subscribers()) {
-    local_map_pub_->publish(*lidar_locator_->get_local_map());
-  }
   return true;
 }
 

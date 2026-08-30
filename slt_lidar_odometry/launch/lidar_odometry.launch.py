@@ -50,12 +50,11 @@ def generate_launch_description():
                 'undistort_point_cloud': False,
                 'publish_undistorted_point_cloud': False,
                 'publish_tf': True,
-                'use_initial_pose_from_topic': True,
                 'base_frame_id': 'base_link',
                 'lidar_frame_id': 'velo_link',
+                'odom_frame_id': 'odom_lidar',
             }
         ],
-        remappings=[('reference_odom', '/synced_gnss/pose')],
         output='screen',
     )
     simple_evaluator_node = Node(
@@ -65,7 +64,7 @@ def generate_launch_description():
         parameters=[
             {
                 'trajectory_path': data_dir + '/trajectory',
-                'odom_names': ['ground_truth', 'lidar_odom'],
+                'odom_names': ['ground_truth', 'odom_lidar'],
                 'odom_topics': ['synced_gnss/pose', 'lidar_odometry/odom'],
                 'reference_odom_name': 'ground_truth',
             }

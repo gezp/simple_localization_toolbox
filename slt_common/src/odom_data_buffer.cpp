@@ -38,6 +38,46 @@ bool OdomDataBuffer::get_data(double time, OdomData & data)
   return false;
 }
 
+bool OdomDataBuffer::get_data_at_or_after(double time, OdomData & data)
+{
+  auto it = buffer_.lower_bound(static_cast<int64_t>(time * 1000000));
+  if (it == buffer_.end()) {
+    return false;
+  }
+  data = it->second;
+  return true;
+}
+
+bool OdomDataBuffer::get_data_after(double time, OdomData & data)
+{
+  auto it = buffer_.upper_bound(static_cast<int64_t>(time * 1000000));
+  if (it == buffer_.end()) {
+    return false;
+  }
+  data = it->second;
+  return true;
+}
+
+bool OdomDataBuffer::get_data_at_or_before(double time, OdomData & data)
+{
+  auto it = buffer_.upper_bound(static_cast<int64_t>(time * 1000000));
+  if (it == buffer_.begin()) {
+    return false;
+  }
+  data = std::prev(it)->second;
+  return true;
+}
+
+bool OdomDataBuffer::get_data_before(double time, OdomData & data)
+{
+  auto it = buffer_.lower_bound(static_cast<int64_t>(time * 1000000));
+  if (it == buffer_.begin()) {
+    return false;
+  }
+  data = std::prev(it)->second;
+  return true;
+}
+
 bool OdomDataBuffer::get_nearest_data(double time, OdomData & data)
 {
   if (buffer_.empty()) {

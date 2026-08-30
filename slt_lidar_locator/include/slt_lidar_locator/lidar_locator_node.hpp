@@ -42,7 +42,9 @@ public:
 private:
   bool run();
   bool read_data();
-  bool publish_data();
+
+private:
+  rclcpp::Node::SharedPtr node_;
 
 private:
   // subscriber

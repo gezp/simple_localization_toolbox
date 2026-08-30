@@ -64,7 +64,7 @@ private:
   bool get_initial_pose_by_scan_context(Eigen::Matrix4d & initial_pose);
   bool get_initial_pose_by_gnss_data(Eigen::Matrix4d & initial_pose);
   bool get_initial_pose_by_gnss_odometry(Eigen::Matrix4d & initial_pose);
-  bool init_global_localization();
+  bool init_global_localization(Eigen::Matrix4d & global_pose);
 
 private:
   std::shared_ptr<scan_context::ScanContextManager> scan_context_manager_;

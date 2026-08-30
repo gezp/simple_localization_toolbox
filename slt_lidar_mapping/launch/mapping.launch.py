@@ -50,12 +50,11 @@ def generate_launch_description():
         parameters=[
             {
                 'lidar_odometry_config': lidar_odometry_config,
-                'use_initial_pose_from_topic': True,
                 'base_frame_id': 'base_link',
                 'lidar_frame_id': 'velo_link',
+                'odom_frame_id': 'odom_lidar',
             }
         ],
-        remappings=[('reference_odom', '/synced_gnss/pose')],
         output='screen',
     )
     back_end_node = Node(
