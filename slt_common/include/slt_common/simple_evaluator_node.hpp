@@ -40,7 +40,7 @@ public:
 
 private:
   bool run();
-  bool publish_map_odom_tf(const std::string & odom_name, const OdomData & odom);
+  bool publish_map_odom_tf(size_t map_index, size_t odom_index);
   void save_pose(std::ofstream & ofs, const OdomData & odom);
   bool save_trajectory();
   bool check_unique_element(const std::vector<std::string> & v);
@@ -60,7 +60,6 @@ private:
   std::vector<OdomDataBuffer> odom_data_buffers_;
   size_t reference_odom_index_{0};
   std::vector<bool> map_odom_tf_published_;
-  std::string map_frame_id_{"map"};
   //
   std::string trajectory_path_;
   std::unique_ptr<std::thread> run_thread_;

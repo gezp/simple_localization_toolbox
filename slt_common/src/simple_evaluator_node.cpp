@@ -107,15 +107,19 @@ SimpleEvaluatorNode::~SimpleEvaluatorNode()
 bool SimpleEvaluatorNode::run()
 {
   // update odom data
-  for (size_t i = 0; i < odom_topics_.size(); i++) {
+  for (size_t i = 0; i < odom_names_.size(); i++) {
     std::deque<OdomData> odom_buffer;
     odom_subs_[i]->parse_data(odom_buffer);
     for (auto & data : odom_buffer) {
       odom_data_buffers_[i].add_data(data);
     }
-    if (!map_odom_tf_published_[i] && !odom_buffer.empty() && i != reference_odom_index_) {
-      map_odom_tf_published_[i] = publish_map_odom_tf(odom_names_[i], odom_buffer.front());
+  }
+  // publish map -> odom tf for non-map-frame odometry
+  for (size_t i = 0; i < odom_names_.size(); i++) {
+    if (map_odom_tf_published_[i] || reference_odom_index_ == i) {
+      continue;
     }
+    map_odom_tf_published_[i] = publish_map_odom_tf(reference_odom_index_, i);
   }
   if (save_odometry_flag_) {
     save_trajectory();
@@ -124,18 +128,35 @@ bool SimpleEvaluatorNode::run()
   return true;
 }
 
-bool SimpleEvaluatorNode::publish_map_odom_tf(const std::string & odom_name, const OdomData & odom)
+bool SimpleEvaluatorNode::publish_map_odom_tf(size_t map_index, size_t odom_index)
 {
-  // align first odom pose to reference at same timestamp
+  auto & map_buffer = odom_data_buffers_[map_index];
+  auto & odom_buffer = odom_data_buffers_[odom_index];
+  if (map_buffer.size() == 0 || odom_buffer.size() == 0) {
+    // wait data
+    return false;
+  }
+  const std::string & frame_id = odom_subs_[map_index]->get_frame_id();
+  const std::string & child_frame_id = odom_subs_[odom_index]->get_frame_id();
+  if (frame_id.empty() || child_frame_id.empty() || frame_id == child_frame_id) {
+    // wait frame id or same frame
+    return false;
+  }
+  // find earliest odom data within map odom's time range, then interpolate map odom at that time
+  OdomData odom;
+  if (!odom_buffer.get_data_at_or_after(map_buffer.get_start_time(), odom)) {
+    // wait odom data within map time range
+    return false;
+  }
   OdomData ref_odom;
-  if (!odom_data_buffers_[reference_odom_index_].get_interpolated_data(odom.time, ref_odom)) {
+  if (!map_buffer.get_interpolated_data(odom.time, ref_odom)) {
     // wait reference data
     return false;
   }
   Eigen::Matrix4d T_map_odom = ref_odom.pose * odom.pose.inverse();
   geometry_msgs::msg::TransformStamped msg;
-  msg.header.frame_id = map_frame_id_;
-  msg.child_frame_id = odom_name;
+  msg.header.frame_id = frame_id;
+  msg.child_frame_id = child_frame_id;
   msg.transform = to_transform_msg(T_map_odom);
   static_tf_pub_->sendTransform(msg);
   Eigen::Vector3d p = T_map_odom.block<3, 1>(0, 3);

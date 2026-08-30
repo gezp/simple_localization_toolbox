@@ -30,6 +30,10 @@ public:
   void add_data(const OdomData & data);
   // get
   bool get_data(double time, OdomData & data);
+  bool get_data_at_or_after(double time, OdomData & data);
+  bool get_data_after(double time, OdomData & data);
+  bool get_data_at_or_before(double time, OdomData & data);
+  bool get_data_before(double time, OdomData & data);
   bool get_nearest_data(double time, OdomData & data);
   bool get_interpolated_data(double time, OdomData & data);
   std::vector<OdomData> get_vector();

@@ -15,6 +15,7 @@
 #pragma once
 
 #include <deque>
+#include <vector>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -31,6 +32,8 @@ class OdometrySubscriber
 public:
   OdometrySubscriber(rclcpp::Node::SharedPtr node, std::string topic_name, size_t buff_size);
   void parse_data(std::deque<OdomData> & output);
+  const std::string & get_frame_id() const;
+  const std::string & get_child_frame_id() const;
 
 private:
   void msg_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
@@ -38,7 +41,9 @@ private:
 private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr subscriber_;
-  std::deque<OdomData> data_buffer_;
+  std::string frame_id_;
+  std::string child_frame_id_;
+  std::vector<nav_msgs::msg::Odometry::SharedPtr> msg_buffer_;
   std::mutex buffer_mutex_;
 };
 
