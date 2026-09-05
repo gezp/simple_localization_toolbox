@@ -84,6 +84,7 @@ private:
   Eigen::Matrix4d T_map_odom_ = Eigen::Matrix4d::Identity();
 
   float key_frame_distance_ = 2.0;
+  float key_frame_angle_ = 30.0 * M_PI / 180.0;
   int new_gnss_cnt_ = 0;
   int new_loop_cnt_ = 0;
   int new_key_frame_cnt_ = 0;
