@@ -147,8 +147,8 @@ bool SimpleOdometry::check_new_key_frame(const Eigen::Matrix4d & pose)
   if (dis.norm() > key_frame_distance_) {
     return true;
   }
-  Eigen::Matrix3d R_rel = key_frames_.back().pose.block<3, 3>(0, 0).transpose() *
-                          pose.block<3, 3>(0, 0);
+  Eigen::Matrix3d R_rel =
+    key_frames_.back().pose.block<3, 3>(0, 0).transpose() * pose.block<3, 3>(0, 0);
   if (Eigen::AngleAxisd(R_rel).angle() > key_frame_angle_) {
     return true;
   }

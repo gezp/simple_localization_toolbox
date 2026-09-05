@@ -200,8 +200,8 @@ bool BackEnd::check_new_key_frame(const slt_common::OdomData & lidar_odom)
   if (translation.lpNorm<1>() > key_frame_distance_) {
     return true;
   }
-  Eigen::Matrix3d R_rel = latest_key_lidar_odom_.pose.block<3, 3>(0, 0).transpose() *
-                          lidar_odom.pose.block<3, 3>(0, 0);
+  Eigen::Matrix3d R_rel =
+    latest_key_lidar_odom_.pose.block<3, 3>(0, 0).transpose() * lidar_odom.pose.block<3, 3>(0, 0);
   if (Eigen::AngleAxisd(R_rel).angle() > key_frame_angle_) {
     return true;
   }
