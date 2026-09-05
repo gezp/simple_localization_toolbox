@@ -1,0 +1,89 @@
+# M3DGR acquisition platform calibration
+# source: https://github.com/sjtuyinjie/M3DGR/blob/main/calibration.md
+#
+# M3DGR doc convention: 'a tf b' means a_T_b (p_a = R * p_b + t).
+# base_link_T_avia given directly: t [0.6, 0, 0.15], R identity.
+# Other base_link_T_X chain-derived via avia.
+#
+# TF tree:
+#   base_link -> camera -> camera_imu
+#   base_link -> livox_avia_lidar -> livox_avia_imu
+#   base_link -> livox_mid360_lidar -> livox_mid360_imu
+#   base_link -> gnss_antenna
+#
+# each entry 'X -> Y' = static transform X_T_Y:
+#   p_X = R * p_Y + t, translation [x, y, z] m, rotation 3x3 row-major
+
+extrinsics:
+  - frame_id: base_link
+    child_frame_id: camera
+    translation: [0.438451470, 0.011951020, 0.240448230]
+    rotation: [0.021076700, -0.003871700, 0.999770300,
+               -0.999396900, 0.027520900, 0.021175400,
+               -0.027596500, -0.999613700, -0.003289400]
+  - frame_id: camera
+    child_frame_id: camera_imu
+    translation: [-0.035750855, 0.004455897, -0.032697845]
+    rotation: [0.999570870, -0.001928910, -0.029229210,
+               0.002153130, 0.999968480, 0.007641560,
+               0.029213550, -0.007701220, 0.999543530]
+  - frame_id: base_link
+    child_frame_id: livox_avia_lidar
+    translation: [0.600000000, 0.000000000, 0.150000000]
+    rotation: [1.0, 0.0, 0.0,
+               0.0, 1.0, 0.0,
+               0.0, 0.0, 1.0]
+  - frame_id: livox_avia_lidar
+    child_frame_id: livox_avia_imu
+    translation: [-0.041650000, -0.023260000, 0.028400000]
+    rotation: [1.0, 0.0, 0.0,
+               0.0, 1.0, 0.0,
+               0.0, 0.0, 1.0]
+  - frame_id: base_link
+    child_frame_id: livox_mid360_lidar
+    translation: [0.607642154, 0.048398976, 0.652666779]
+    rotation: [0.849802000, 0.039319600, 0.525632000,
+               -0.039829100, 0.999153000, -0.010348400,
+               -0.525594000, -0.012141400, 0.850649000]
+  - frame_id: livox_mid360_lidar
+    child_frame_id: livox_mid360_imu
+    translation: [0.011000000, 0.023290000, -0.044120000]
+    rotation: [1.0, 0.0, 0.0,
+               0.0, 1.0, 0.0,
+               0.0, 0.0, 1.0]
+  - frame_id: base_link
+    child_frame_id: gnss_antenna
+    translation: [0.242000000, 0.086000000, 0.579000000]
+    rotation: [1.0, 0.0, 0.0,
+               0.0, 1.0, 0.0,
+               0.0, 0.0, 1.0]
+
+# camera intrinsics (D435i RGB, 640x480, pinhole)
+camera_intrinsics:
+  model_type: PINHOLE
+  camera_name: camera
+  image_width: 640
+  image_height: 480
+  distortion_parameters:
+    k1: 0.0
+    k2: 0.0
+    p1: 0.0
+    p2: 0.0
+  projection_parameters:
+    fx: 607.79772949218
+    fy: 607.83526613281
+    cx: 328.79772949218
+    cy: 245.53321838378
+
+# IMU noise (Allan variance, avg-axis)
+imu_noise:
+  livox_mid360_imu:
+    gyr_n: 1.3254540721802960e-03
+    gyr_w: 5.2026292534341382e-05
+    acc_n: 1.1472382386578356e-02
+    acc_w: 3.3397564584716999e-04
+  livox_avia_imu:
+    gyr_n: 3.2194626705221046e-03
+    gyr_w: 7.1383392426109448e-05
+    acc_n: 2.0846225165441278e-02
+    acc_w: 3.4099978362929511e-04
