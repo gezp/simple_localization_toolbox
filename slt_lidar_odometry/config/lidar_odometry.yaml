@@ -27,6 +27,7 @@ simple:
             max_iter : 30
     # for local map
     key_frame_distance: 2.0
+    key_frame_angle: 30.0
     local_frame_num: 20
     local_map_filter:
         enable: true

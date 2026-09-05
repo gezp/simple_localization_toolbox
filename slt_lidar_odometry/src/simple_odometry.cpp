@@ -27,6 +27,7 @@ SimpleOdometry::SimpleOdometry(const YAML::Node & config)
   //
   local_frame_num_ = config["local_frame_num"].as<int>();
   key_frame_distance_ = config["key_frame_distance"].as<float>();
+  key_frame_angle_ = config["key_frame_angle"].as<float>() * M_PI / 180.0;
   // init registration and filter
   registration_ = registration_factory_->create(config["registration"]);
   using VoxelFilter = slt_common::VoxelFilter;
@@ -144,6 +145,11 @@ bool SimpleOdometry::check_new_key_frame(const Eigen::Matrix4d & pose)
   }
   Eigen::Vector3d dis = key_frames_.back().pose.block<3, 1>(0, 3) - pose.block<3, 1>(0, 3);
   if (dis.norm() > key_frame_distance_) {
+    return true;
+  }
+  Eigen::Matrix3d R_rel =
+    key_frames_.back().pose.block<3, 3>(0, 0).transpose() * pose.block<3, 3>(0, 0);
+  if (Eigen::AngleAxisd(R_rel).angle() > key_frame_angle_) {
     return true;
   }
   return false;

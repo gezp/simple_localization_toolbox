@@ -1,4 +1,5 @@
 key_frame_distance: 2.0 # 关键帧距离
+key_frame_angle: 30.0 # 关键帧旋转角（度）
 
 use_gnss: true
 use_loop_closure: true

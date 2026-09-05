@@ -25,7 +25,8 @@ simple:
             trans_eps : 0.01
             max_iter : 30
     # for local map
-    key_frame_distance: 1.0
+    key_frame_distance: 2.0
+    key_frame_angle: 10.0
     local_frame_num: 20
     local_map_filter:
         enable: true

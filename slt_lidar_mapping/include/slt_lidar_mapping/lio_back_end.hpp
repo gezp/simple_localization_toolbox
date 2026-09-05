@@ -79,6 +79,7 @@ private:
   Eigen::Matrix4d T_base_lidar_ = Eigen::Matrix4d::Identity();
   // params
   float key_frame_distance_ = 2.0;
+  float key_frame_angle_ = 30.0 * M_PI / 180.0;
   double gravity_magnitude_ = 9.8;
   bool use_gnss_ = true;
   bool use_loop_closure_ = false;

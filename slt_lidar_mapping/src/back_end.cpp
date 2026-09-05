@@ -24,6 +24,7 @@ bool BackEnd::init_config(const std::string & config_path, const std::string & d
   YAML::Node config_node = YAML::LoadFile(config_path);
   // init_param
   key_frame_distance_ = config_node["key_frame_distance"].as<float>();
+  key_frame_angle_ = config_node["key_frame_angle"].as<float>() * M_PI / 180.0;
   // init graph optimizer
   init_graph_optimizer(config_node);
   // init key_frame_manager
@@ -197,6 +198,11 @@ bool BackEnd::check_new_key_frame(const slt_common::OdomData & lidar_odom)
     (lidar_odom.pose.block<3, 1>(0, 3) - latest_key_lidar_odom_.pose.block<3, 1>(0, 3));
   // whether the current scan is far away enough from last key frame:
   if (translation.lpNorm<1>() > key_frame_distance_) {
+    return true;
+  }
+  Eigen::Matrix3d R_rel =
+    latest_key_lidar_odom_.pose.block<3, 3>(0, 0).transpose() * lidar_odom.pose.block<3, 3>(0, 0);
+  if (Eigen::AngleAxisd(R_rel).angle() > key_frame_angle_) {
     return true;
   }
   return false;

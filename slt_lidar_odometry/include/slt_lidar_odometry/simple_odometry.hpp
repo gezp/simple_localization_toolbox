@@ -62,6 +62,7 @@ private:
   std::shared_ptr<slt_common::VoxelFilter> display_filter_;
   // params for local map
   float key_frame_distance_ = 2.0;
+  float key_frame_angle_ = 30.0 * M_PI / 180.0;
   int local_frame_num_ = 20;
   // tf
   Eigen::Matrix4d T_base_lidar_ = Eigen::Matrix4d::Identity();
