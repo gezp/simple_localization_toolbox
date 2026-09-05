@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schemetypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>slt_bringup_m3dgr</name>
+  <version>0.1.0</version>
+  <description>M3DGR dataset bringup tools for ROS2</description>
+  <maintainer email="zhenpeng.ge@qq.com">Zhenpeng Ge</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>slt_common</depend>
+  <depend>yaml-cpp</depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>slt_lidar_odometry</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

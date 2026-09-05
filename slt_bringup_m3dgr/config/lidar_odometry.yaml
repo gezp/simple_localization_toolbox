@@ -1,0 +1,76 @@
+lidar_odometry_method: simple
+enable_elapsed_time_statistics: true
+simple:
+    # registration for scan to map
+    registration:
+        method: NDT
+        PCL_ICP:
+            max_corr_dist : 1.2
+            trans_eps : 0.01
+            euc_fitness_eps : 0.36
+            max_iter : 30
+        ICP_SVD:
+            max_corr_dist : 1.2
+            trans_eps : 0.01
+            euc_fitness_eps : 0.36
+            max_iter : 10
+        PCL_NDT:
+            res : 1.0
+            step_size : 0.1
+            trans_eps : 0.01
+            max_iter : 30
+        NDT:
+            res : 1.0
+            step_size : 0.05
+            trans_eps : 0.01
+            max_iter : 30
+    # for local map
+    key_frame_distance: 1.0
+    local_frame_num: 20
+    local_map_filter:
+        enable: true
+        leaf_size: [0.6, 0.6, 0.6]
+    # for current scan
+    current_scan_filter:
+        enable: true
+        leaf_size: [0.3, 0.3, 0.3]
+    # for rviz display
+    display_filter:
+        enable: true
+        leaf_size: [0.6, 0.6, 0.6]
+    enable_elapsed_time_statistics: false
+loam:
+    loam_feature_extraction:
+        num_rings: 64
+        num_regions: 6
+        curvature_padding: 5
+        corner_curvature_threshold: 0.1
+        surface_curvature_threshold: 0.1
+        neighbor_padding: 5
+        neighbor_distance_threshold: 0.05
+        max_num_corner_sharp: 2
+        max_num_corner_less_sharp: 20
+        max_num_surface_flat: 4
+        voxel_filter_leaf_size: 0.2
+        feature_color_rgb:
+            corner_sharp: [255, 0, 0]
+            corner_less_sharp: [255, 0, 0]
+            surface_flat: [0, 255, 0]
+            surface_less_flat: [0, 255, 0]
+        debug: false
+    loam_registration:
+        correspondence_search:
+            num_nearby_ring: 2
+            distance_threshold: 5
+        num_optimization: 2
+        use_analytic_derivatives: false
+        ceres_loss: 0.1
+        max_num_iterations: 4
+        min_num_residual_blocks: 10
+        minimizer_progress_to_stdout: false
+        debug: false
+        enable_elapsed_time_statistics: false
+    display_filter:
+        enable: true
+        leaf_size: [0.6, 0.6, 0.6]
+    enable_elapsed_time_statistics: false
