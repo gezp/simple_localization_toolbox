@@ -1,0 +1,98 @@
+# fastlio/fastlio2
+lio_method: fastlio
+enable_elapsed_time_statistics: true
+fastlio:
+    # odometry state initialization
+    lio_initializer:
+        # static | dynamic | auto (dynamic with a static fallback)
+        method: auto
+        # earth gravity magnitude
+        gravity_magnitude: 9.80943
+        # static detection: newest num imu data averaged, gyro/accel thresholds
+        static_init_num: 20
+        static_gyro_threshold: 0.05
+        static_accel_threshold: 1.0
+        static_accel_noise: 0.1
+        registration:
+            method: NDT
+            NDT:
+                res: 1.0
+                step_size: 0.1
+                trans_eps: 0.01
+                max_iter: 30
+    input_filter:
+        enable: true
+        leaf_size: [0.5, 0.5, 0.5]
+    eskf:
+        max_num_iterations: 4
+        converge_threshold: 0.1
+        observation_noise: 0.01
+        covariance:
+            prior: 1.0e-2
+            prior_gravity: 1.0e-4
+            gyro: 1.0e-4
+            accel: 2.5e-3
+            gyro_bias: 1.0e-4
+            accel_bias: 2.5e-3
+    correspondence_search:
+        num_nearby: 5
+        nearby_distance: 1.0
+        plane_eigen_ratio: 3.0
+        max_plane_distance: 0.2
+    local_map:
+        key_frame_distance: 2.0
+        key_frame_angle: 30.0
+        local_frame_num: 20
+        local_map_filter:
+            enable: true
+            leaf_size: [0.4, 0.4, 0.4]
+    display_filter:
+        enable: true
+        leaf_size: [0.6, 0.6, 0.6]
+    enable_elapsed_time_statistics: true
+fastlio2:
+    # see fastlio, the two methods share the imu/observation consumption logic
+    # odometry state initialization
+    lio_initializer:
+        # static | dynamic | auto (dynamic with a static fallback)
+        method: auto
+        # earth gravity magnitude
+        gravity_magnitude: 9.80943
+        # static detection: newest num imu data averaged, gyro/accel thresholds
+        static_init_num: 20
+        static_gyro_threshold: 0.05
+        static_accel_threshold: 1.0
+        static_accel_noise: 0.1
+        registration:
+            method: NDT
+            NDT:
+                res: 1.0
+                step_size: 0.1
+                trans_eps: 0.01
+                max_iter: 30
+    input_filter:
+        enable: true
+        leaf_size: [0.5, 0.5, 0.5]
+    eskf:
+        max_num_iterations: 4
+        converge_threshold: 0.1
+        observation_noise: 0.01
+        covariance:
+            prior: 1.0e-2
+            prior_gravity: 1.0e-4
+            gyro: 1.0e-4
+            accel: 2.5e-3
+            gyro_bias: 1.0e-4
+            accel_bias: 2.5e-3
+    correspondence_search:
+        num_nearby: 5
+        nearby_distance: 1.0
+        plane_eigen_ratio: 3.0
+        max_plane_distance: 0.2
+    local_map:
+        map_crop_range: 100.0
+        tree_resolution: 0.2
+    display_filter:
+        enable: true
+        leaf_size: [0.6, 0.6, 0.6]
+    enable_elapsed_time_statistics: true

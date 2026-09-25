@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypns="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ikd_tree</name>
+  <version>1.0.0</version>
+  <description>The ikd_tree wrapper package (vendored from https://github.com/hku-mars/ikd-Tree, GPLv2)</description>
+  <maintainer email="zhenpeng.ge@qq.com">Zhenpeng Ge</maintainer>
+  <license>GPL-2.0-only</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>eigen</depend>
+  <depend>libpcl-all-dev</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
