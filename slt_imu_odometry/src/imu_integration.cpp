@@ -25,12 +25,14 @@ bool ImuIntegration::reset(const slt_common::ImuNavState & state, bool clear_buf
     imu_data_buff_.clear();
     is_inited_ = false;
   }
+  return true;
 }
 
 bool ImuIntegration::integrate(const slt_common::ImuData & imu_data)
 {
   if (!is_inited_) {
     imu_data_buff_.push_back(imu_data);
+    imu_data_ = imu_data;
     is_inited_ = true;
     return true;
   }
@@ -59,10 +61,19 @@ bool ImuIntegration::integrate(const slt_common::ImuData & imu_data)
   state_.position = new_pos;
   state_.orientation = new_ori;
   state_.linear_velocity = new_vel;
+  imu_data_ = imu_data;
   imu_data_buff_.pop_front();
   return true;
 }
 
-const slt_common::ImuNavState & ImuIntegration::get_imu_nav_state() {return state_;}
+const slt_common::ImuNavState & ImuIntegration::get_imu_nav_state()
+{
+  return state_;
+}
+
+const slt_common::ImuData & ImuIntegration::get_imu_data()
+{
+  return imu_data_;
+}
 
 }  // namespace slt_imu_odometry

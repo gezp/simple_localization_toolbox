@@ -30,11 +30,13 @@ public:
   bool integrate(const slt_common::ImuData & imu_data);
   bool reset(const slt_common::ImuNavState & state, bool clear_buffer = false);
   const slt_common::ImuNavState & get_imu_nav_state();
+  const slt_common::ImuData & get_imu_data();
 
 private:
   // data
   std::deque<slt_common::ImuData> imu_data_buff_;
   slt_common::ImuNavState state_;
+  slt_common::ImuData imu_data_;
   bool is_inited_{false};
 };
 

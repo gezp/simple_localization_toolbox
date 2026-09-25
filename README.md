@@ -60,6 +60,7 @@ lidar + imu 多传感器融合定位
 - [X] 实现基于卡尔曼滤波的定位功能(eskf): `slt_eskf_locator`
 - [X] 实现基于松耦合LIO的建图功能: `slt_lidar_mapping`
 - [X] 实现基于图优化的定位功能(sliding window): `slt_graph_locator`
+- [X] 实现紧耦合LIO里程计(fastlio): `slt_lio`
 
 代码优化及扩展
 
@@ -76,3 +77,5 @@ lidar + imu 多传感器融合定位
 * https://github.com/gaoxiang12/slam_in_autonomous_driving
 * https://github.com/HKUST-Aerial-Robotics/VINS-Mono
 * https://github.com/HKUST-Aerial-Robotics/A-LOAM
+* https://github.com/hku-mars/FAST_LIO
+* https://github.com/hku-mars/ikd-Tree
