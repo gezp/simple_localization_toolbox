@@ -137,7 +137,8 @@ void Fastlio::consume_observation(const slt_common::LidarData & lidar_data, doub
 void Fastlio::propagate_eskf_to(double time)
 {
   for (auto it = imu_history_buffer_.upper_bound(eskf_->get_time());
-       it != imu_history_buffer_.end() && it->first <= time; ++it) {
+    it != imu_history_buffer_.end() && it->first <= time; ++it)
+  {
     eskf_->predict(it->second);
   }
 }
@@ -255,7 +256,7 @@ bool Fastlio::update_local_map()
   Frame frame;
   auto scan = current_scan_->makeShared();
   Eigen::Affine3f T_world_imu = Eigen::Translation3f(current_pose.block<3, 1>(0, 3).cast<float>()) *
-                                current_pose.block<3, 3>(0, 0).cast<float>();
+    current_pose.block<3, 3>(0, 0).cast<float>();
   pcl::transformPointCloud(*scan, *scan, T_world_imu);
   frame.point_cloud = scan;
   key_frames_.push_back(frame);

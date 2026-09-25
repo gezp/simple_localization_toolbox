@@ -16,6 +16,9 @@
 
 #include <pcl/kdtree/kdtree_flann.h>
 
+#include <limits>
+#include <vector>
+
 #include "slt_lio/kalman_filter/eskf.hpp"
 
 namespace slt_lio

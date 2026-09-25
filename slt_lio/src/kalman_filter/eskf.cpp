@@ -143,7 +143,8 @@ bool Eskf::observe_point_cloud(const std::vector<PlaneObservation> & observation
     dx_total += dx;
     if (
       dx.block<3, 1>(kIndexErrorPos, 0).norm() < converge_threshold_ &&
-      dx.block<3, 1>(kIndexErrorOri, 0).norm() < converge_threshold_) {
+      dx.block<3, 1>(kIndexErrorOri, 0).norm() < converge_threshold_)
+    {
       break;
     }
   }

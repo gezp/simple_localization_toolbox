@@ -15,11 +15,10 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <sophus/so3.hpp>
-
 #include <Eigen/Dense>
 #include <deque>
 #include <vector>
+#include <sophus/so3.hpp>
 
 #include "slt_common/sensor_data/imu_data.hpp"
 #include "slt_common/sensor_data/imu_nav_state.hpp"
@@ -39,7 +38,8 @@ public:
   // error state index
   static constexpr int kDimState = 18;
   static constexpr int kDimProcessNoise = 12;
-  enum StateIndex {
+  enum StateIndex
+  {
     kIndexErrorPos = 0,
     kIndexErrorVel = 3,
     kIndexErrorOri = 6,
@@ -47,7 +47,8 @@ public:
     kIndexErrorGyro = 12,
     kIndexErrorGravity = 15,
   };
-  enum NoiseIndex {
+  enum NoiseIndex
+  {
     kIndexNoiseAccel = 0,
     kIndexNoiseGyro = 3,
     kIndexNoiseBiasAccel = 6,
@@ -72,7 +73,7 @@ public:
   double get_time();
   slt_common::ImuNavState get_imu_nav_state();
   slt_common::ImuData get_imu_data();
-  bool is_inited() { return is_inited_; }
+  bool is_inited() {return is_inited_;}
 
 private:
   void eliminate_error();

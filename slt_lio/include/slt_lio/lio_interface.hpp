@@ -52,8 +52,8 @@ public:
   virtual slt_common::ImuData get_imu_data() = 0;
   // for display, current point cloud & local map in odometry frame, nullptr when they
   // did not change since the last call (an implementation without display: the default)
-  virtual PointCloudPtr get_current_scan() { return nullptr; }
-  virtual PointCloudPtr get_local_map() { return nullptr; }
+  virtual PointCloudPtr get_current_scan() {return nullptr;}
+  virtual PointCloudPtr get_local_map() {return nullptr;}
 };
 
 }  // namespace slt_lio

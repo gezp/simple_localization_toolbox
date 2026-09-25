@@ -18,6 +18,7 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 
 #include "slt_common/point_cloud_registration/point_cloud_registration_interface.hpp"
 #include "slt_common/sensor_data/imu_data.hpp"

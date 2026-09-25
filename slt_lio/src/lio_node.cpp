@@ -78,22 +78,22 @@ LioNode::LioNode(rclcpp::Node::SharedPtr node)
   // since the last poll, so a coarse poll hands it coarse batches (a batch spanning the
   // initialization loses the samples the initializer consumes)
   run_thread_ = std::make_unique<std::thread>([this]() {
-    while (!exit_) {
-      if (!run()) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(20ms);
-      }
-    }
+        while (!exit_) {
+          if (!run()) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(20ms);
+          }
+        }
   });
   // the imu has its own thread: it owns the subscription, so both the odometry and the
   // filter's imu feed stay at the imu rate however long a scan takes
   imu_thread_ = std::make_unique<std::thread>([this]() {
-    while (!exit_) {
-      if (!update_imu_odom()) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(2ms);
-      }
-    }
+        while (!exit_) {
+          if (!update_imu_odom()) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(2ms);
+          }
+        }
   });
 }
 
@@ -114,7 +114,8 @@ bool LioNode::run()
   if (!is_valid_extrinsics_) {
     if (
       !extrinsics_manager_->lookup(imu_frame_id_, lidar_frame_id_, T_imu_lidar_) ||
-      !extrinsics_manager_->lookup(base_frame_id_, imu_frame_id_, T_base_imu_)) {
+      !extrinsics_manager_->lookup(base_frame_id_, imu_frame_id_, T_base_imu_))
+    {
       return false;
     }
     lio_->set_extrinsic(T_imu_lidar_, T_base_imu_);
@@ -199,7 +200,8 @@ bool LioNode::update_imu_odom()
   }
   const double odom_time = imu_odom_.get_imu_nav_state().time;
   for (auto it = imu_history_buffer_.upper_bound(odom_time); it != imu_history_buffer_.end();
-       ++it) {
+    ++it)
+  {
     imu_odom_.integrate(it->second);
   }
   // a correction only goes out once the replay carried the odometry past the stamp

@@ -86,7 +86,7 @@ bool LioInitializer::try_init(slt_common::ImuNavState & state, slt_common::ImuDa
       ok = init_static(state, imu_data);
       if (ok) {
         std::cout << "LioInitializer: scan matching failed, fall back to the static "
-                     "initialization"
+          "initialization"
                   << std::endl;
       }
     }

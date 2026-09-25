@@ -19,6 +19,7 @@ from launch import LaunchDescription
 from launch.actions import ExecuteProcess
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     pkg_slt_lio = get_package_share_directory('slt_lio')
     rviz2_config = os.path.join(pkg_slt_lio, 'launch', 'lio_odometry.rviz')
