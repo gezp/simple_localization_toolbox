@@ -23,23 +23,25 @@ namespace slt_eskf_locator
 
 Eskf::Eskf(const YAML::Node & node)
 {
-  // prior and process noise covariance:
-  prior_noise_ = node["covariance"]["prior"].as<double>();
-  gyro_noise_ = node["covariance"]["gyro"].as<double>();
-  accel_noise_ = node["covariance"]["accel"].as<double>();
-  gyro_bias_noise_ = node["covariance"]["gyro_bias"].as<double>();
-  accel_bias_noise_ = node["covariance"]["accel_bias"].as<double>();
+  // prior and process noise:
+  prior_noise_ = node["imu_noise"]["prior"].as<double>();
+  gyro_noise_ = node["imu_noise"]["gyro"].as<double>();
+  accel_noise_ = node["imu_noise"]["accel"].as<double>();
+  gyro_bias_noise_ = node["imu_noise"]["gyro_bias"].as<double>();
+  accel_bias_noise_ = node["imu_noise"]["accel_bias"].as<double>();
   // reset prior state & covariance:
   X_.setZero();
-  P_ = prior_noise_ * Eigen::Matrix<double, kDimState, kDimState>::Identity();
+  P_ = prior_noise_ * prior_noise_ * Eigen::Matrix<double, kDimState, kDimState>::Identity();
   // process noise:
   Q_.setZero();
-  Q_.block<3, 3>(kIndexNoiseAccel, kIndexNoiseAccel) = accel_noise_ * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(kIndexNoiseGyro, kIndexNoiseGyro) = gyro_noise_ * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(kIndexNoiseAccel, kIndexNoiseAccel) =
+    accel_noise_ * accel_noise_ * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(kIndexNoiseGyro, kIndexNoiseGyro) =
+    gyro_noise_ * gyro_noise_ * Eigen::Matrix3d::Identity();
   Q_.block<3, 3>(kIndexNoiseBiasAccel, kIndexNoiseBiasAccel) =
-    accel_bias_noise_ * Eigen::Matrix3d::Identity();
+    accel_bias_noise_ * accel_bias_noise_ * Eigen::Matrix3d::Identity();
   Q_.block<3, 3>(kIndexNoiseBiasGyro, kIndexNoiseBiasGyro) =
-    gyro_bias_noise_ * Eigen::Matrix3d::Identity();
+    gyro_bias_noise_ * gyro_bias_noise_ * Eigen::Matrix3d::Identity();
   // imu integration
   imu_integration_ = std::make_shared<ImuIntegration>();
 }
@@ -119,7 +121,8 @@ bool Eskf::observe_pose(const Eigen::Matrix4d & pose, const Eigen::Matrix<double
     Eigen::Matrix<double, kDimMeasurement, kDimState>::Zero();
   H.block<3, 3>(0, kIndexErrorPos) = Eigen::Matrix3d::Identity();
   H.block<3, 3>(3, kIndexErrorOri) = Eigen::Matrix3d::Identity();
-  Eigen::Matrix<double, kDimMeasurement, kDimMeasurement> V = noise.asDiagonal();
+  Eigen::Matrix<double, kDimMeasurement, kDimMeasurement> V =
+    (noise.array() * noise.array()).matrix().asDiagonal();
   // get kalman gain
   Eigen::Matrix<double, kDimState, kDimMeasurement> K;
   K = P_ * H.transpose() * (H * P_ * H.transpose() + V).inverse();

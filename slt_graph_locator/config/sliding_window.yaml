@@ -21,13 +21,13 @@ earth:
     latitude: 48.9827703173
 
 measurement_noise:
-    lidar_odometry: [1.0, 1.0, 1.0, 0.01, 0.01, 0.01]
-    lidar_pose: [1.0, 1.0, 1.0, 0.01, 0.01, 0.01]
-    gnss_position: [1.0, 1.0, 4.0]
+    lidar_odometry: [1.0, 1.0, 1.0, 0.1, 0.1, 0.1]
+    lidar_pose: [1.0, 1.0, 1.0, 0.1, 0.1, 0.1]
+    gnss_position: [1.0, 1.0, 2.0]
 
 imu_noise:
-    prior: 1.0e-6
-    gyro: 1.0e-4
-    accel: 2.5e-3
-    gyro_bias: 1.0e-8
-    accel_bias: 1.0e-8
+    prior: 1.0e-3
+    gyro: 1.0e-2
+    accel: 5.0e-2
+    gyro_bias: 1.0e-4
+    accel_bias: 1.0e-4

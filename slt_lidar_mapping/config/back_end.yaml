@@ -16,9 +16,9 @@ optimize_step_with_loop: 10
 graph_optimizer_method: g2o # 图优化库，目前支持g2o
 
 g2o:
-    odom_edge_noise: [0.5, 0.5, 0.5, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
-    close_loop_noise: [0.3, 0.3, 0.3, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
-    gnss_noise: [2.0, 2.0, 2.0] # 噪声：x y z
+    odom_edge_noise: [0.7, 0.7, 0.7, 0.03, 0.03, 0.03] # 噪声：x y z yaw roll pitch
+    close_loop_noise: [0.5, 0.5, 0.5, 0.03, 0.03, 0.03] # 噪声：x y z yaw roll pitch
+    gnss_noise: [1.5, 1.5, 1.5] # 噪声：x y z
 
 # 全局地图点云滤波方法
 global_map_filter:

@@ -287,7 +287,7 @@ Eigen::MatrixXd CeresGraphOptimizer::get_information_matrix(Eigen::VectorXd nois
 {
   Eigen::MatrixXd information_matrix = Eigen::MatrixXd::Identity(noise.rows(), noise.rows());
   for (int i = 0; i < noise.rows(); i++) {
-    information_matrix(i, i) /= noise(i);
+    information_matrix(i, i) /= noise(i) * noise(i);
   }
   return information_matrix;
 }

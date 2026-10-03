@@ -31,12 +31,12 @@ earth:
 graph_optimizer_method: g2o # 图优化库，目前支持g2o
 
 g2o:
-    lidar_odom_noise: [0.5, 0.5, 0.5, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
-    loop_closure_noise: [0.3, 0.3, 0.3, 0.001, 0.001, 0.001] # 噪声：x y z yaw roll pitch
-    gnss_noise: [2.0, 2.0, 2.0] # 噪声：x y z
+    lidar_odom_noise: [0.7, 0.7, 0.7, 0.03, 0.03, 0.03] # 噪声：x y z yaw roll pitch
+    loop_closure_noise: [0.5, 0.5, 0.5, 0.03, 0.03, 0.03] # 噪声：x y z yaw roll pitch
+    gnss_noise: [1.5, 1.5, 1.5] # 噪声：x y z
     imu_noise:
-        prior: 1.0e-6
-        gyro: 1.0e-4
-        accel: 2.5e-3
-        gyro_bias: 1.0e-8
-        accel_bias: 1.0e-8
+        prior: 1.0e-3
+        gyro: 1.0e-2
+        accel: 5.0e-2
+        gyro_bias: 1.0e-4
+        accel_bias: 1.0e-4

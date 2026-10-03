@@ -26,13 +26,17 @@ ImuPreIntegration::ImuPreIntegration(
   ba_i_ = Eigen::Vector3d::Zero();
   bg_i_ = Eigen::Vector3d::Zero();
   // process noise
+  const double accel_var = accel_noise * accel_noise;
+  const double gyro_var = gyro_noise * gyro_noise;
+  const double accel_bias_var = accel_bias_noise * accel_bias_noise;
+  const double gyro_bias_var = gyro_bias_noise * gyro_bias_noise;
   Q_.setZero();
-  Q_.block<3, 3>(INDEX_N_A_PREV, INDEX_N_A_PREV) = accel_noise * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(INDEX_N_A_CURR, INDEX_N_A_CURR) = accel_noise * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(INDEX_N_G_PREV, INDEX_N_G_PREV) = gyro_noise * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(INDEX_N_G_CURR, INDEX_N_G_CURR) = gyro_noise * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(INDEX_N_B_A, INDEX_N_B_A) = accel_bias_noise * Eigen::Matrix3d::Identity();
-  Q_.block<3, 3>(INDEX_N_B_G, INDEX_N_B_G) = gyro_bias_noise * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_A_PREV, INDEX_N_A_PREV) = accel_var * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_A_CURR, INDEX_N_A_CURR) = accel_var * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_G_PREV, INDEX_N_G_PREV) = gyro_var * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_G_CURR, INDEX_N_G_CURR) = gyro_var * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_B_A, INDEX_N_B_A) = accel_bias_var * Eigen::Matrix3d::Identity();
+  Q_.block<3, 3>(INDEX_N_B_G, INDEX_N_B_G) = gyro_bias_var * Eigen::Matrix3d::Identity();
   // process equation, state propagation
   F_.setZero();
   F_.block<3, 3>(INDEX_ALPHA, INDEX_BETA) = Eigen::Matrix3d::Identity();
