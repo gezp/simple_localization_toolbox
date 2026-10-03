@@ -7,14 +7,14 @@ earth:
     latitude: 48.9827703173
 measurement_noise:
     lidar_pose:
-        pos: 1.0e-4
-        ori: 1.0e-4
+        pos: 1.0e-2
+        ori: 1.0e-2
 fusion_method: eskf
 ## parameters for eskf
 eskf:
-    covariance:
-        prior: 1.0e-6
-        gyro: 1.0e-4
-        accel: 2.5e-3
-        gyro_bias: 1.0e-4
-        accel_bias: 2.5e-3
+    imu_noise:
+        prior: 1.0e-3
+        gyro: 1.0e-2
+        accel: 5.0e-2
+        gyro_bias: 1.0e-2
+        accel_bias: 5.0e-2
