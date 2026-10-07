@@ -1,0 +1,1 @@
+ros2 service call /save_odometry slt_interface/srv/SaveOdometry

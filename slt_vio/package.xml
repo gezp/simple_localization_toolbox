@@ -1,24 +1,17 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>slt_common</name>
+  <name>slt_vio</name>
   <version>0.1.0</version>
-  <description>The slt_common package</description>
+  <description>The slt_vio package: monocular visual-inertial odometry (vins-mono)</description>
   <maintainer email="zhenpeng.ge@qq.com">Zhenpeng Ge</maintainer>
   <license>Apache-2.0</license>
-  <author email="rq_ren@163.com">Ren Qian</author>
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>pcl_ros</depend>
-  <depend>tf2_ros</depend>
-  <depend>tf2_eigen</depend>
-  <depend>geometry_msgs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>nav_msgs</depend>
-  <depend>slt_interface</depend>
-  <depend>yaml-cpp</depend>
-  <depend>geographiclib</depend>
+  <depend>slt_common</depend>
+  <depend>slt_imu_odometry</depend>
+  <depend>sophus</depend>
   <depend>libopencv-dev</depend>
   <depend>cv_bridge</depend>
 

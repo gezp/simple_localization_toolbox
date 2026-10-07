@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       - name: Pre install
         run: |
-          /usr/bin/bash -c "apt-get update && apt-get install -y libunwind-dev libceres-dev"
+          /usr/bin/bash -c "apt-get update && apt-get install -y libunwind-dev libceres-dev libopencv-dev"
       - name: Build simple_localization_toolbox
         uses: ros-tooling/action-ros-ci@v0.4
         with:
@@ -49,3 +49,6 @@ jobs:
       - name: Test slt_lio
         run: |
           /usr/bin/bash .github/workflows/colcon_test.sh slt_lio
+      - name: Test slt_vio
+        run: |
+          /usr/bin/bash .github/workflows/colcon_test.sh slt_vio

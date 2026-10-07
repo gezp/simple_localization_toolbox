@@ -128,7 +128,7 @@ void CeresGraphOptimizer::add_imu_pre_integration_edge(
   measurement.block<3, 1>(6, 0) = imu_pre_integration_->get_beta();
   edge.m = measurement;
   edge.I = imu_pre_integration_->get_covariance().inverse();
-  edge.dt = imu_pre_integration_->get_dt();
+  edge.dt = imu_pre_integration_->get_delta_time();
   edge.gravity = imu_config_.gravity;
   edge.jacobian = imu_pre_integration_->get_jacobian();
   // add to graph

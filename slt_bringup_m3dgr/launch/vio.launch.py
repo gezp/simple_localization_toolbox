@@ -23,12 +23,12 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_slt_bringup_m3dgr = get_package_share_directory('slt_bringup_m3dgr')
-    rviz2_config = os.path.join(pkg_slt_bringup_m3dgr, 'launch', 'lidar_odometry.rviz')
-    lidar_odometry_config = os.path.join(
-        pkg_slt_bringup_m3dgr, 'config', 'lidar_odometry.yaml'
-    )
     calibration_config = os.path.join(
         pkg_slt_bringup_m3dgr, 'config', 'calibration.yaml'
+    )
+    rviz2_config = os.path.join(pkg_slt_bringup_m3dgr, 'launch', 'vio.rviz')
+    vio_config = os.path.join(
+        pkg_slt_bringup_m3dgr, 'config', 'vio_odometry.yaml'
     )
     data_dir = os.path.join(
         os.environ.get('HOME', '.'), 'localization_data', 'dataset', 'M3DGR', 'Standard'
@@ -66,24 +66,24 @@ def generate_launch_description():
             }
         ],
     )
-    lidar_odometry_node = Node(
-        name='lidar_odometry_node',
-        package='slt_lidar_odometry',
-        executable='lidar_odometry_node',
+    vio_node = Node(
+        name='vio_node',
+        package='slt_vio',
+        executable='vio_node',
         parameters=[
             {
-                'lidar_odometry_config': lidar_odometry_config,
-                'undistort_point_cloud': False,
-                'publish_undistorted_point_cloud': False,
-                'use_initial_pose_from_topic': False,
-                'publish_tf': True,
+                'vio_config': vio_config,
+                'enable_compressed': True,
                 'base_frame_id': 'base_link',
-                'lidar_frame_id': 'livox_avia_lidar',
-                'odom_frame_id': 'odom_lidar',
+                'camera_frame_id': 'camera',
+                'imu_frame_id': 'camera_imu',
+                'odom_frame_id': 'odom_vio',
             }
         ],
         remappings=[
-            ('synced_cloud', '/livox/avia/points'),
+            ('image', '/camera/color/image_raw/compressed'),
+            ('camera_info', '/camera/color/camera_info'),
+            ('imu', '/camera/imu'),
         ],
         output='screen',
     )
@@ -94,10 +94,10 @@ def generate_launch_description():
         parameters=[
             {
                 'trajectory_path': os.path.join(
-                    os.environ.get('HOME', '.'), 'localization_data', 'trajectory'
+                    os.environ.get('HOME', '.'), 'localization_data', 'trajectory_vio'
                 ),
-                'odom_names': ['ground_truth', 'odom_lidar'],
-                'odom_topics': ['m3dgr/ground_truth/odom', 'lidar_odometry/odom'],
+                'odom_names': ['ground_truth', 'odom_vio'],
+                'odom_topics': ['m3dgr/ground_truth/odom', 'visual_odometry/odom'],
                 'reference_odom_name': 'ground_truth',
             }
         ],
@@ -124,7 +124,7 @@ def generate_launch_description():
             DeclareLaunchArgument('rate', default_value='1.0'),
             rosbag_node,
             replay_node,
-            lidar_odometry_node,
+            vio_node,
             simple_evaluator_node,
             rviz2,
         ]

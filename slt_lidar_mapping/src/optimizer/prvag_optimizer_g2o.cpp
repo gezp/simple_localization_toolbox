@@ -136,7 +136,7 @@ void G2oGraphOptimizerPRVAG::add_imu_pre_integration_edge(
   edge->vertices()[0] = dynamic_cast<g2o::VertexPRVAG *>(graph_->vertex(v0));
   edge->vertices()[1] = dynamic_cast<g2o::VertexPRVAG *>(graph_->vertex(v1));
   // set measurement
-  edge->setT(imu_pre_integration_->get_dt());
+  edge->setT(imu_pre_integration_->get_delta_time());
   edge->setGravitiy(gravity_);
   edge->setJacobian(imu_pre_integration_->get_jacobian());
   Eigen::Matrix<double, 15, 1> measurement = Eigen::Matrix<double, 15, 1>::Zero();
