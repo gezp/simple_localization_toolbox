@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include <Eigen/Dense>
 #include <deque>
+#include <memory>
 
 #include "slt_common/sensor_data/imu_data.hpp"
 #include "slt_common/sensor_data/imu_nav_state.hpp"
@@ -45,15 +47,23 @@ public:
     double accel_noise, double gyro_noise, double accel_bias_noise, double gyro_bias_noise);
   void set_bias(Eigen::Vector3d ba, Eigen::Vector3d bg);
   bool integrate(const slt_common::ImuData & imu_data);
-  bool reset(bool clear_buffer = false);
-  double get_dt();
+  void reintegrate();
+  void reset();
+  // the interval spans its buffer, first sample to last: zero while it holds fewer
+  double get_delta_time() const;
   Eigen::Vector3d get_alpha();
   Eigen::Matrix3d get_theta();
   Eigen::Vector3d get_beta();
   Eigen::Matrix<double, 15, 15> get_covariance();
   Eigen::Matrix<double, 15, 15> get_jacobian();
-  slt_common::ImuNavState get_imu_nav_state(
-    const slt_common::ImuNavState & initial_state);
+  Eigen::Vector3d get_ba();
+  Eigen::Vector3d get_bg();
+  // the last integrated sample, the interval's end: the next interval opens there. a default
+  // sample while the interval holds none
+  slt_common::ImuData get_imu_data() const;
+  const std::deque<slt_common::ImuData> & get_imu_data_buffer() const;
+  bool apply(
+    const slt_common::ImuNavState & from, slt_common::ImuNavState & to) const;
 
 private:
   void update_state();
@@ -67,15 +77,12 @@ private:
   double accel_bias_noise_;
   // data buff:
   std::deque<slt_common::ImuData> imu_data_buff_;
-  double time_;
   // process noise:
   Eigen::Matrix<double, DIM_NOISE, DIM_NOISE> Q_;
   // process equation:
   Eigen::Matrix<double, DIM_STATE, DIM_STATE> F_;
   Eigen::Matrix<double, DIM_STATE, DIM_NOISE> B_;
   // pre-integration state:
-  // time delta:
-  double total_dt_;
   // relative translation
   Eigen::Vector3d alpha_ij_;
   // relative orientation
@@ -92,5 +99,7 @@ private:
   Eigen::Matrix<double, DIM_STATE, DIM_STATE> J_;
   bool is_inited_{false};
 };
+
+using ImuPreIntegrationPtr = std::shared_ptr<ImuPreIntegration>;
 
 }  // namespace slt_imu_odometry

@@ -15,13 +15,18 @@
 #pragma once
 
 #include <atomic>
+#include <memory>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/camera_info.hpp"
 #include "slt_common/publisher/odometry_publisher.hpp"
 #include "slt_common/sensor_data/odom_data.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 #include "tf2_ros/transform_broadcaster.h"
+#include "yaml-cpp/yaml.h"
 
 namespace slt_bringup_m3dgr
 {
@@ -40,8 +45,11 @@ public:
   ~ReplayNode();
 
 private:
-  bool load_extrinsics(const std::string & config_path);
+  bool load_calibration(const std::string & config_path);
+  bool load_extrinsics(const YAML::Node & config);
+  bool load_camera_intrinsics(const YAML::Node & config);
   void publish_extrinsics();
+  void publish_camera_info();
   bool load_ground_truth(const std::string & gt_path);
   void rebuild_gt_rotation();
   void replay_ground_truth();
@@ -51,6 +59,8 @@ private:
   std::vector<slt_common::OdomData> ground_truth_;
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_pub_;
   std::shared_ptr<slt_common::OdometryPublisher> gt_pub_;
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::CameraInfo>> camera_info_pub_;
+  sensor_msgs::msg::CameraInfo camera_info_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_pub_;
   double rate_ = 1.0;
   bool publish_tf_ = false;

@@ -12,6 +12,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(slt_common REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -19,6 +20,7 @@ find_package(yaml-cpp REQUIRED)
 set(dependencies
   rclcpp
   nav_msgs
+  sensor_msgs
   tf2_ros
   slt_common
 )

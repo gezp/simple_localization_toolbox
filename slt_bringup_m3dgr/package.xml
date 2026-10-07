@@ -11,12 +11,15 @@
 
   <depend>rclcpp</depend>
   <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>slt_common</depend>
   <depend>yaml-cpp</depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>slt_lidar_odometry</exec_depend>
+  <exec_depend>slt_vio</exec_depend>
+  <exec_depend>rqt_image_view</exec_depend>
   <exec_depend>rviz2</exec_depend>
 
   <test_depend>ament_lint_common</test_depend>

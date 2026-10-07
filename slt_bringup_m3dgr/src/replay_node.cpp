@@ -14,12 +14,12 @@
 
 #include "slt_bringup_m3dgr/replay_node.hpp"
 
+#include <yaml-cpp/yaml.h>
+
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <fstream>
-#include <algorithm>
-
-#include <yaml-cpp/yaml.h>
 
 #include "slt_common/msg_utils.hpp"
 
@@ -49,9 +49,12 @@ ReplayNode::ReplayNode(rclcpp::Node::SharedPtr node)
   if (publish_tf_) {
     gt_pub_->set_tf_broadcaster(tf_pub_);
   }
-  // extrinsics -> static tf
-  if (!load_extrinsics(calibration_config)) {
-    RCLCPP_FATAL(node->get_logger(), "failed to load extrinsics from: %s",
+  // the bag carries no camera info; latch it so a late subscriber still gets it
+  camera_info_pub_ = node->create_publisher<sensor_msgs::msg::CameraInfo>(
+    "camera/color/camera_info", rclcpp::QoS(1).transient_local());
+  // extrinsics -> static tf, camera intrinsics -> latched camera info
+  if (!load_calibration(calibration_config)) {
+    RCLCPP_FATAL(node->get_logger(), "failed to load calibration from: %s",
                  calibration_config.c_str());
     return;
   }
@@ -64,8 +67,9 @@ ReplayNode::ReplayNode(rclcpp::Node::SharedPtr node)
     rebuild_gt_rotation();
   }
   run_thread_ = std::thread([this]() {
-    publish_extrinsics();
-    replay_ground_truth();
+        publish_extrinsics();
+        publish_camera_info();
+        replay_ground_truth();
   });
 }
 
@@ -77,9 +81,17 @@ ReplayNode::~ReplayNode()
   }
 }
 
-bool ReplayNode::load_extrinsics(const std::string & config_path)
+bool ReplayNode::load_calibration(const std::string & config_path)
 {
   YAML::Node config = YAML::LoadFile(config_path);
+  if (!load_extrinsics(config)) {
+    return false;
+  }
+  return load_camera_intrinsics(config);
+}
+
+bool ReplayNode::load_extrinsics(const YAML::Node & config)
+{
   if (!config["extrinsics"]) {
     return false;
   }
@@ -120,6 +132,40 @@ void ReplayNode::publish_extrinsics()
   RCLCPP_INFO(node_->get_logger(), "published %lu static transforms", messages.size());
 }
 
+bool ReplayNode::load_camera_intrinsics(const YAML::Node & config)
+{
+  if (!config["camera_intrinsics"]) {
+    return false;
+  }
+  const YAML::Node & intrinsics = config["camera_intrinsics"];
+  const YAML::Node & projection = intrinsics["projection_parameters"];
+  const YAML::Node & distortion = intrinsics["distortion_parameters"];
+  const double fx = projection["fx"].as<double>();
+  const double fy = projection["fy"].as<double>();
+  const double cx = projection["cx"].as<double>();
+  const double cy = projection["cy"].as<double>();
+  camera_info_.header.frame_id = intrinsics["camera_name"].as<std::string>();
+  camera_info_.width = intrinsics["image_width"].as<int>();
+  camera_info_.height = intrinsics["image_height"].as<int>();
+  // the m3dgr rgb camera is a pinhole; radial-tangential with k3 = 0 is plumb_bob
+  camera_info_.distortion_model = "plumb_bob";
+  camera_info_.d = {distortion["k1"].as<double>(), distortion["k2"].as<double>(),
+    distortion["p1"].as<double>(), distortion["p2"].as<double>(), 0.0};
+  camera_info_.k = {fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0};
+  camera_info_.r = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+  camera_info_.p = {fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0};
+  return true;
+}
+
+void ReplayNode::publish_camera_info()
+{
+  camera_info_.header.stamp = node_->now();
+  camera_info_pub_->publish(camera_info_);
+  RCLCPP_INFO(node_->get_logger(), "published camera info: %dx%d, fx %f fy %f cx %f cy %f",
+              camera_info_.width, camera_info_.height, camera_info_.k[0], camera_info_.k[4],
+              camera_info_.k[2], camera_info_.k[5]);
+}
+
 bool ReplayNode::load_ground_truth(const std::string & gt_path)
 {
   std::ifstream ifs(gt_path);
@@ -153,14 +199,15 @@ void ReplayNode::rebuild_gt_rotation()
   //   valid    = chord length >= half of arc (straight motion vs. drift noise)
   //   applied  = target rate-limited to +-5 deg per pose (no jumps, static holds)
   const size_t n = ground_truth_.size();
-  auto pos = [this](size_t k) { return ground_truth_[k].pose.block<3, 1>(0, 3); };
+  auto pos = [this](size_t k) {return ground_truth_[k].pose.block<3, 1>(0, 3);};
   std::vector<double> arc(n, 0.0);
   for (size_t i = 1; i < n; ++i) {
     arc[i] = arc[i - 1] + (pos(i) - pos(i - 1)).head<2>().norm();
   }
   auto idx = [&](double s) {
-    return std::clamp<size_t>(std::lower_bound(arc.begin(), arc.end(), s) - arc.begin(), 0, n - 1);
-  };
+      return std::clamp<size_t>(std::lower_bound(arc.begin(), arc.end(), s) - arc.begin(), 0,
+        n - 1);
+    };
   const double window = 1.0, max_step = 5.0 * M_PI / 180.0;
   // rate limit only applies across consecutive moving poses; after a static
   // segment (start or mid-trajectory) jump directly to current chord heading
@@ -172,9 +219,9 @@ void ReplayNode::rebuild_gt_rotation()
     bool moving = d.norm() > 0.1 && d.norm() >= 0.5 * (arc[f] - arc[b]);
     if (moving) {
       double target = std::atan2(d.y(), d.x());
-      yaw = static_prev
-              ? target
-              : yaw + std::clamp(std::remainder(target - yaw, 2 * M_PI), -max_step, max_step);
+      yaw = static_prev ?
+        target :
+        yaw + std::clamp(std::remainder(target - yaw, 2 * M_PI), -max_step, max_step);
     }
     static_prev = !moving;
     ground_truth_[i].pose.block<3, 3>(0, 0) =

@@ -19,12 +19,15 @@ find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(slt_interface REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(cv_bridge REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
 find_package(GeographicLib REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common io filters registration)
 # find_package(backward_ros REQUIRED)
 
 include_directories(include)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # libaray
 set(dependencies
@@ -36,18 +39,24 @@ set(dependencies
   sensor_msgs
   nav_msgs
   slt_interface
+  cv_bridge
 )
 add_library(${PROJECT_NAME} SHARED
+  # camera_model
+  src/camera_model/camera_model.cpp
   # publisher
   src/publisher/cloud_publisher.cpp
   src/publisher/gnss_publisher.cpp
+  src/publisher/image_publisher.cpp
   src/publisher/imu_publisher.cpp
   src/publisher/lidar_frames_publisher.cpp
   src/publisher/path_publisher.cpp
   src/publisher/loop_candidate_publisher.cpp
   src/publisher/odometry_publisher.cpp
   # subscriber
+  src/subscriber/camera_info_subscriber.cpp
   src/subscriber/cloud_subscriber.cpp
+  src/subscriber/image_subscriber.cpp
   src/subscriber/gnss_subscriber.cpp
   src/subscriber/imu_subscriber.cpp
   src/subscriber/lidar_frames_subscriber.cpp
@@ -81,6 +90,7 @@ target_link_libraries(${PROJECT_NAME}
   ${GeographicLib_LIBRARIES}
   ${YAML_CPP_LIBRARIES}
   ${PCL_LIBRARIES}
+  ${OpenCV_LIBS}
 )
 
 # kitti_preprocess_node

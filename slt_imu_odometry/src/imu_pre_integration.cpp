@@ -49,7 +49,7 @@ ImuPreIntegration::ImuPreIntegration(
   B_.block<3, 3>(INDEX_B_A, INDEX_N_B_A) = Eigen::Matrix3d::Identity();
   B_.block<3, 3>(INDEX_B_G, INDEX_N_B_G) = Eigen::Matrix3d::Identity();
   //
-  reset(true);
+  reset();
 }
 
 void ImuPreIntegration::set_bias(Eigen::Vector3d ba, Eigen::Vector3d bg)
@@ -62,12 +62,11 @@ bool ImuPreIntegration::integrate(const slt_common::ImuData & imu_data)
 {
   if (!is_inited_) {
     imu_data_buff_.push_back(imu_data);
-    time_ = imu_data.time;
     is_inited_ = true;
     return true;
   }
 
-  if (imu_data.time <= imu_data_buff_.front().time) {
+  if (imu_data.time <= imu_data_buff_.back().time) {
     return false;
   }
 
@@ -76,21 +75,19 @@ bool ImuPreIntegration::integrate(const slt_common::ImuData & imu_data)
 
   // update state mean, covariance and Jacobian:
   update_state();
-
-  // move forward:
-  imu_data_buff_.pop_front();
   return true;
 }
 
 void ImuPreIntegration::update_state(void)
 {
-  // get measurements
-  Eigen::Vector3d w0 = imu_data_buff_.at(0).angular_velocity - bg_i_;
-  Eigen::Vector3d w1 = imu_data_buff_.at(1).angular_velocity - bg_i_;
-  Eigen::Vector3d a0 = imu_data_buff_.at(0).linear_acceleration - ba_i_;
-  Eigen::Vector3d a1 = imu_data_buff_.at(1).linear_acceleration - ba_i_;
-  double dt = imu_data_buff_.at(1).time - imu_data_buff_.at(0).time;
-  total_dt_ = imu_data_buff_.at(1).time - time_;
+  // the interval's two newest samples
+  const slt_common::ImuData & prev = imu_data_buff_.at(imu_data_buff_.size() - 2);
+  const slt_common::ImuData & curr = imu_data_buff_.at(imu_data_buff_.size() - 1);
+  Eigen::Vector3d w0 = prev.angular_velocity - bg_i_;
+  Eigen::Vector3d w1 = curr.angular_velocity - bg_i_;
+  Eigen::Vector3d a0 = prev.linear_acceleration - ba_i_;
+  Eigen::Vector3d a1 = curr.linear_acceleration - ba_i_;
+  double dt = curr.time - prev.time;
   // update
   Eigen::Vector3d w_mid = 0.5 * (w0 + w1);
   Eigen::Matrix3d new_theta_ij = theta_ij_ * Sophus::SO3d::exp(w_mid * dt).matrix();
@@ -140,24 +137,30 @@ void ImuPreIntegration::update_state(void)
   beta_ij_ = new_beta_ij;
 }
 
-bool ImuPreIntegration::reset(bool clear_buffer)
+void ImuPreIntegration::reset()
 {
-  if (clear_buffer) {
-    imu_data_buff_.clear();
-    is_inited_ = false;
-  }
-  if (!imu_data_buff_.empty()) {
-    time_ = imu_data_buff_.front().time;
-  }
+  imu_data_buff_.clear();
+  is_inited_ = false;
   alpha_ij_ = Eigen::Vector3d::Zero();
   theta_ij_ = Eigen::Matrix3d::Identity();
   beta_ij_ = Eigen::Vector3d::Zero();
   P_.setZero();
   J_.setIdentity();
-  return true;
 }
 
-double ImuPreIntegration::get_dt() {return total_dt_;}
+void ImuPreIntegration::reintegrate()
+{
+  const std::deque<slt_common::ImuData> samples = imu_data_buff_;
+  reset();
+  for (const auto & imu_data : samples) {
+    integrate(imu_data);
+  }
+}
+
+double ImuPreIntegration::get_delta_time() const
+{
+  return imu_data_buff_.size() < 2 ? 0.0 : imu_data_buff_.back().time - imu_data_buff_.front().time;
+}
 
 Eigen::Vector3d ImuPreIntegration::get_alpha() {return alpha_ij_;}
 
@@ -169,20 +172,36 @@ Eigen::Matrix<double, 15, 15> ImuPreIntegration::get_covariance() {return P_;}
 
 Eigen::Matrix<double, 15, 15> ImuPreIntegration::get_jacobian() {return J_;}
 
-slt_common::ImuNavState ImuPreIntegration::get_imu_nav_state(
-  const slt_common::ImuNavState & initial_state)
+Eigen::Vector3d ImuPreIntegration::get_ba() {return ba_i_;}
+
+Eigen::Vector3d ImuPreIntegration::get_bg() {return bg_i_;}
+
+slt_common::ImuData ImuPreIntegration::get_imu_data() const
 {
-  slt_common::ImuNavState state;
-  auto & p = initial_state.position;
-  auto & r = initial_state.orientation;
-  auto & v = initial_state.linear_velocity;
-  auto & g = initial_state.gravity;
-  state.position = p + v * total_dt_ + 0.5 * g * total_dt_ * total_dt_ + r * alpha_ij_;
-  state.linear_velocity = v + g * total_dt_ + r * beta_ij_;
-  state.orientation = r * theta_ij_;
-  state.gravity = g;
-  state.accel_bias = ba_i_;
-  state.gyro_bias = bg_i_;
-  return state;
+  return imu_data_buff_.empty() ? slt_common::ImuData{} : imu_data_buff_.back();
+}
+
+const std::deque<slt_common::ImuData> & ImuPreIntegration::get_imu_data_buffer() const
+{
+  return imu_data_buff_;
+}
+
+bool ImuPreIntegration::apply(
+  const slt_common::ImuNavState & from, slt_common::ImuNavState & to) const
+{
+  if (imu_data_buff_.empty()) {
+    return false;
+  }
+  auto & p = from.position;
+  auto & r = from.orientation;
+  auto & v = from.linear_velocity;
+  auto & g = from.gravity;
+  to = from;
+  to.time = imu_data_buff_.back().time;
+  const double dt = get_delta_time();
+  to.position = p + v * dt + 0.5 * g * dt * dt + r * alpha_ij_;
+  to.linear_velocity = v + g * dt + r * beta_ij_;
+  to.orientation = Eigen::Quaterniond{r * theta_ij_}.normalized().toRotationMatrix();
+  return true;
 }
 }  // namespace slt_imu_odometry
