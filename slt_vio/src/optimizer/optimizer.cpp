@@ -326,18 +326,11 @@ void Optimizer::apply_solution(const Frame & origin)
   const Eigen::Vector3d solved_r = Eigen::Map<const Eigen::Vector3d>(solved_state + INDEX_R);
   const Eigen::Matrix3d origin_R = Sophus::SO3d::exp(origin_r).matrix();
   const Eigen::Matrix3d solved_R = Sophus::SO3d::exp(solved_r).matrix();
-  const Eigen::Vector3d origin_r0 = slt_common::R_to_ypr(origin_R);
-  const Eigen::Vector3d solved_r0 = slt_common::R_to_ypr(solved_R);
-  const double y_diff = origin_r0.x() - solved_r0.x();
-
-  // only the yaw is free, the roll and the pitch are held by the gravity of the imu residual
-  Eigen::Matrix3d R_diff = slt_common::ypr_to_R(Eigen::Vector3d(y_diff, 0, 0));
-  if (std::abs(std::abs(origin_r0.y()) - 90) < 1.0 ||
-    std::abs(std::abs(solved_r0.y()) - 90) < 1.0)
-  {
-    // the yaw is not observable at the euler singular point, take the rotation from the solve
-    R_diff = origin_R * solved_R.transpose();
-  }
+  // the yaw is read off the rotation difference itself: the euler angle is ill conditioned wherever
+  // the camera looks near straight down or up, which at the first frame of this phone bag it does
+  const Eigen::Matrix3d R_full = origin_R * solved_R.transpose();
+  const double y_diff = std::atan2(R_full(1, 0) - R_full(0, 1), R_full(0, 0) + R_full(1, 1));
+  const Eigen::Matrix3d R_diff = Sophus::SO3d::exp(Eigen::Vector3d{0, 0, y_diff}).matrix();
 
   for (auto & entry : frames_) {
     Frame & frame = *entry.second;

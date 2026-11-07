@@ -1,0 +1,32 @@
+# phone camera-imu calibration
+#
+# cameras/imus/transforms are one entry each. the calibration_publisher_node publishes the first
+# camera as camera_info (latched) and every transform as static tf; imus are ignored.
+# pinhole_radtan distortion_coeffs are k1 k2 p1 p2 k3, the plumb_bob order.
+
+cameras:
+    camera1:
+        frame_id: camera
+        height: 480
+        width: 640
+        type: pinhole_radtan
+        intrinsics: [428.928, 429.423, 309.638, 228.126]
+        distortion_coeffs: [0.0291864, 0.0133, -0.00368632, -0.0027696, -0.0511529]
+imus:
+    imu1:
+        frame_id: imu
+        accel_matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+        accel_bias: [0, 0, 0]
+        accel_noise_density: [0.0080939, 0.0085957, 0.0109728]
+        accel_random_walk: [0.000433, 0.000433, 0.000433]
+        gyro_matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+        gyro_bias: [0, 0, 0]
+        gyro_noise_density: [0.000794644, 0.000790375, 0.000775061]
+        gyro_random_walk: [2.66e-05, 2.66e-05, 2.66e-05]
+transforms:
+    camera_tf_imu:
+        frame_id: camera
+        child_frame_id: imu
+        translation: [0.0328631, 0.00478449, 0.0]
+        rotation_xyzw: [-0.70448, 0.709701, 0.000615725, -0.00557794]
+        time_offset: -0.068352

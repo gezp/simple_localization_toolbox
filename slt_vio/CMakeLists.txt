@@ -58,7 +58,7 @@ install(TARGETS
 )
 
 # Install directories
-install(DIRECTORY launch config
+install(DIRECTORY launch config resource
   DESTINATION share/${PROJECT_NAME}
 )
 

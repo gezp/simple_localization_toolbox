@@ -107,6 +107,13 @@ add_executable(simple_evaluator_node
 
 target_link_libraries(simple_evaluator_node ${PROJECT_NAME})
 
+# calib_manager_node
+add_executable(calib_manager_node
+  src/calib_manager_node.cpp
+  src/calib_manager_main.cpp)
+
+target_link_libraries(calib_manager_node ${PROJECT_NAME})
+
 # Install include directories
 install(DIRECTORY include/
   DESTINATION include
@@ -123,6 +130,7 @@ install(TARGETS ${PROJECT_NAME}
 
 # Install executables
 install(TARGETS
+    calib_manager_node
     kitti_preprocess_node
     simple_evaluator_node
   DESTINATION lib/${PROJECT_NAME}

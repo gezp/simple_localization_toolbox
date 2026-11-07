@@ -20,8 +20,11 @@ namespace slt_common
 ImuSubscriber::ImuSubscriber(rclcpp::Node::SharedPtr node, std::string topic_name, size_t buff_size)
 : node_(node)
 {
+  // sensor data qos requests best effort: it matches both the best effort imu drivers and the
+  // reliable bag playback, a reliable request only matches reliable publishers
   subscriber_ = node_->create_subscription<sensor_msgs::msg::Imu>(
-    topic_name, buff_size, std::bind(&ImuSubscriber::msg_callback, this, std::placeholders::_1));
+    topic_name, rclcpp::SensorDataQoS().keep_last(buff_size),
+    std::bind(&ImuSubscriber::msg_callback, this, std::placeholders::_1));
 }
 
 void ImuSubscriber::msg_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg_ptr)
