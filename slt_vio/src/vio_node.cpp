@@ -160,6 +160,12 @@ bool VioNode::run()
       feature_image_pub_->publish(vins_mono_->get_feature_image(), corrected_odom.time);
     }
   }
+  // the module speaks through its message queue, a drained one keeps the text unbounded. every
+  // call drains, the refused frames are the ones that speak: the bootstrap and a reboot
+  const std::string message = vins_mono_->error_message();
+  if (!message.empty()) {
+    RCLCPP_INFO(node_->get_logger(), "%s", message.c_str());
+  }
   elapsed_time_statistics_.toc("update vio");
   elapsed_time_statistics_.print_all_info("update vio", 100);
   return true;

@@ -23,13 +23,16 @@ ImageSubscriber::ImageSubscriber(
   rclcpp::Node::SharedPtr node, std::string topic_name, size_t buff_size, bool enable_compressed)
 : node_(node), enable_compressed_(enable_compressed), buffer_size_(buff_size)
 {
+  // sensor data qos requests best effort: it matches both the best effort camera drivers and the
+  // reliable bag playback, a reliable request only matches reliable publishers
+  const auto qos = rclcpp::SensorDataQoS().keep_last(buff_size);
   if (enable_compressed_) {
     compressed_subscriber_ = node_->create_subscription<sensor_msgs::msg::CompressedImage>(
-      topic_name, buff_size,
+      topic_name, qos,
       std::bind(&ImageSubscriber::compressed_msg_callback, this, std::placeholders::_1));
   } else {
     subscriber_ = node_->create_subscription<sensor_msgs::msg::Image>(
-      topic_name, buff_size,
+      topic_name, qos,
         std::bind(&ImageSubscriber::msg_callback, this, std::placeholders::_1));
   }
 }

@@ -1,0 +1,67 @@
+# vins-mono monocular visual inertial odometry
+enable_elapsed_time_statistics: true
+
+# the algorithm module, the node owns everything outside of it
+vins_mono:
+    # FeatureTracker
+    feature_tracker:
+        # max feature number in feature tracking
+        max_cnt: 150
+        # min distance between two features
+        min_dist: 25
+        # ransac threshold (pixel)
+        f_threshold: 1.0
+        # focal length of the virtual camera the fundamental matrix ransac works on
+        focal_length: 428.928
+        # if the image is too dark or light, turn on equalize to find enough features
+        equalize: false
+
+    # VisualInertialInitializer: the bootstrap. window_size and focal_length repeat the VinsMono
+    # ones and have to agree with them, the imu noise is not repeated: the bootstrap never
+    # integrates a sample
+    initializer:
+        # frames of the bootstrap window
+        window_size: 30
+        # the focal length of the virtual camera, it scales the parallax of the initialization
+        focal_length: 428.928
+        # gravity magnitude of the place, the alignment refines its direction
+        g_norm: 9.81007
+        # print the initializer timing on every initialization
+        enable_elapsed_time_statistics: true
+
+    # Optimizer: the ceres half of the window estimator
+    optimizer:
+        # features the graph holds: 150 tracked per frame, the window keeps the fresh ones
+        max_feature_count: 4000
+        # the ceres budget of one solve
+        max_solver_time: 0.04
+        max_num_iterations: 8
+        # focal length of the virtual camera: one pixel is 1/focal_length for the visual residual
+        focal_length: 428.928
+        # print the optimize/marginalize timing every 100 solves
+        enable_elapsed_time_statistics: true
+        # the camera to imu extrinsic comes off the tf tree, not from here
+
+    # VinsMono: pairs the two streams and drives the classes that work on the window
+    # print the update timing every 100 calls
+    enable_elapsed_time_statistics: true
+    # frames in the window, the optimizer and the bootstrap solve the same one: 30 at 8 Hz is
+    # 3.75 s, the ten key frames vins-mono keeps of a 20-30 Hz stream
+    window_size: 30
+    # the parallax (pixel) above which a frame becomes a key frame
+    keyframe_parallax: 10.0
+    # the rate (Hz) the tracker results are handed to the window at, 0 keeps the raw image rate
+    freq: 10
+    # focal length of the virtual camera: it scales the parallax the initialization and the key
+    # frame test measure, and the weight of the visual residual (1 pixel is 1/focal_length)
+    focal_length: 428.928
+    # imu noise: the weight of the imu residual against the visual one, not the sensor numbers.
+    # the gyro keeps the calibration's 0.01, the accel is loosened for hand vibration; 0.1 lets
+    # the scale run away, 0.3 is the tightest stable at this window
+    acc_noise: 0.3
+    gyr_noise: 0.01
+    acc_walk: 0.001
+    gyr_walk: 0.0001
+    # image timestamp against the imu timestamp, seconds, the calibration's camera_tf_imu
+    # time_offset
+    td: -0.068352
