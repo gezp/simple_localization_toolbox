@@ -28,7 +28,7 @@ ros2 launch slt_vio phone_vio.launch.py
 ```
 
 * 相机内参、外参、时间偏移由 `calib_manager_node` 从 `slt_vio/resource/phone_calibration.yaml` 发布，vio 通过 tf 与 `camera_info` 获取。
-* 配置文件为 `slt_vio/config/phone_vio_odometry.yaml`，与 `vio_odometry.yaml` 结构相同，针对手机 8Hz 图像调整了窗口长度与噪声权重。
+* 配置文件为 `slt_vio/config/phone_vio.yaml`，与 `vio_odometry.yaml` 结构相同，针对手机 8Hz 图像调整了窗口长度与噪声权重。
 
 保存轨迹
 

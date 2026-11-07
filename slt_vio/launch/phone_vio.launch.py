@@ -22,7 +22,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_slt_vio = get_package_share_directory('slt_vio')
     calibration_config = os.path.join(pkg_slt_vio, 'resource', 'phone_calibration.yaml')
-    vio_config = os.path.join(pkg_slt_vio, 'config', 'phone_vio_odometry.yaml')
+    vio_config = os.path.join(pkg_slt_vio, 'config', 'phone_vio.yaml')
     rviz2_config = os.path.join(pkg_slt_vio, 'launch', 'phone_vio.rviz')
     # the calibration is the rig: extrinsics on static tf, intrinsics on the latched camera_info
     calibration_node = Node(
