@@ -54,6 +54,23 @@ def generate_launch_description():
         ],
         output='screen',
     )
+    # one odometry and no ground truth: the phone bag is an evaluation-by-eye walk
+    simple_evaluator_node = Node(
+        name='simple_evaluator_node',
+        package='slt_common',
+        executable='simple_evaluator_node',
+        parameters=[
+            {
+                'trajectory_path': os.path.join(
+                    os.environ.get('HOME', '.'), 'localization_data', 'trajectory_vio'
+                ),
+                'odom_names': ['odom_vio'],
+                'odom_topics': ['visual_odometry/odom'],
+                'reference_odom_name': 'odom_vio',
+            }
+        ],
+        output='screen',
+    )
     # the phone rviz: a room-sized view and trail, the raw frame next to the tracked one
     rviz2 = Node(
         package='rviz2',
@@ -62,4 +79,4 @@ def generate_launch_description():
         arguments=['-d', rviz2_config],
         output='screen',
     )
-    return LaunchDescription([calibration_node, vio_node, rviz2])
+    return LaunchDescription([calibration_node, vio_node, simple_evaluator_node, rviz2])

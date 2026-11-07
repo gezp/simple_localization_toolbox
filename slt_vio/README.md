@@ -18,6 +18,18 @@ ros2 launch slt_bringup_m3dgr vio.launch.py bag_path:=<rosbag2 目录> gt_path:=
   * `visual_odometry/imu_odom` : imu 频率的连续输出，观测到达时由修正结果重新播发。
   * `visual_odometry/feature_image` : 跟踪结果可视化。
 
+运行手机单目demo
+
+```bash
+# 终端1: 播放rosbag (需要包含 /camera/image_raw/compressed 与 /imu/data)
+ros2 bag play <phone_bag>
+# 终端2: 启动标定管理、vio与rviz
+ros2 launch slt_vio phone_vio.launch.py
+```
+
+* 相机内参、外参、时间偏移由 `calib_manager_node` 从 `slt_vio/resource/phone_calibration.yaml` 发布，vio 通过 tf 与 `camera_info` 获取。
+* 配置文件为 `slt_vio/config/phone_vio_odometry.yaml`，与 `vio_odometry.yaml` 结构相同，针对手机 8Hz 图像调整了窗口长度与噪声权重。
+
 保存轨迹
 
 ```bash
